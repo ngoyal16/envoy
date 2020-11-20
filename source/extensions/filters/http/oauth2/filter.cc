@@ -77,7 +77,7 @@ std::vector<Http::HeaderUtility::HeaderData> headerMatchers(const T& matcher_pro
 // Transforms the proto list of 'auth_scopes' into a vector of std::string, also
 // handling the default value logic
 template <class T>
-std::vector<Http::HeaderUtility::HeaderData> authScopes(const T& auth_scopes_protos) {
+std::vector<std::string> authScopes(const T& auth_scopes_protos) {
   std::vector<std::string> scopes;
 
   // if 'auth_scopes_protos' is zero sized, it means the list is empty in the yaml,
@@ -299,7 +299,7 @@ Http::FilterHeadersStatus OAuth2Filter::decodeHeaders(Http::RequestHeaderMap& he
         Http::Utility::PercentEncoding::encode(redirect_uri, ":/=&?");
 
     const std::string escaped_auth_scopes =
-        Http::Utility::PercentEncoding::encode(absl::StrJoin(config->authScopes(), " "), ":/=&?");
+        Http::Utility::PercentEncoding::encode(absl::StrJoin(config_->authScopes(), " "), ":/=&?");
 
     const std::string new_url =
         fmt::format(AuthorizationEndpointFormat, config_->authorizationEndpoint(),
