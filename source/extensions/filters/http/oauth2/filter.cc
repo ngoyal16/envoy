@@ -77,7 +77,7 @@ std::vector<Http::HeaderUtility::HeaderData> headerMatchers(const T& matcher_pro
 // Transforms the proto list of 'auth_scopes' into a vector of std::string, also
 // handling the default value logic
 template <class T>
-std::vector<std::string> authScopes(const T& auth_scopes_protos) {
+std::vector<std::string> authScopesList(const T& auth_scopes_protos) {
   std::vector<std::string> scopes;
 
   // if 'auth_scopes_protos' is zero sized, it means the list is empty in the yaml,
@@ -112,7 +112,7 @@ FilterConfig::FilterConfig(
       redirect_matcher_(proto_config.redirect_path_matcher()),
       signout_path_(proto_config.signout_path()), secret_reader_(secret_reader),
       stats_(FilterConfig::generateStats(stats_prefix, scope)),
-      auth_scopes_(authScopes(proto_config.auth_scopes())),
+      auth_scopes_(authScopesList(proto_config.auth_scopes())),
       forward_bearer_token_(proto_config.forward_bearer_token()),
       pass_through_header_matchers_(headerMatchers(proto_config.pass_through_matcher())) {
   if (!cluster_manager.get(oauth_token_endpoint_.cluster())) {
