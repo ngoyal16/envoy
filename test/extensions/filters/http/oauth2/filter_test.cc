@@ -37,9 +37,9 @@ static const std::string TEST_CLIENT_SECRET_ID = "MyClientSecretKnoxID";
 static const std::string TEST_TOKEN_SECRET_ID = "MyTokenSecretKnoxID";
 static const std::string TEST_ENCODED_AUTH_SCOPES = "user%20openid%20email";
 
-    namespace {
-  Http::RegisterCustomInlineHeader<Http::CustomInlineHeaderRegistry::Type::RequestHeaders>
-      authorization_handle(Http::CustomHeaders::get().Authorization);
+namespace {
+Http::RegisterCustomInlineHeader<Http::CustomInlineHeaderRegistry::Type::RequestHeaders>
+    authorization_handle(Http::CustomHeaders::get().Authorization);
 }
 
 class MockSecretReader : public SecretReader {
@@ -184,7 +184,7 @@ TEST_F(OAuth2Test, DefaultAuthScope) {
                                                 scope_, "test.");
 
   // auth_scopes was not set, should return default value
-  std::vector<std::string> default_scope = { "user" };
+  std::vector<std::string> default_scope = {"user"};
   EXPECT_EQ(test_config_->authScopes(), default_scope);
 }
 
