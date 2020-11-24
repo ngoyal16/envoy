@@ -120,8 +120,9 @@ std::pair<uint64_t, size_t> SymbolTableImpl::Encoding::decodeNumber(const uint8_
 SymbolVec SymbolTableImpl::Encoding::decodeSymbols(const SymbolTable::Storage array, size_t size) {
   SymbolVec symbol_vec;
   symbol_vec.reserve(size);
-  decodeTokens(array, size, [&symbol_vec](Symbol symbol) { symbol_vec.push_back(symbol); },
-               [](absl::string_view) {});
+  decodeTokens(
+      array, size, [&symbol_vec](Symbol symbol) { symbol_vec.push_back(symbol); },
+      [](absl::string_view) {});
   return symbol_vec;
 }
 
@@ -157,11 +158,11 @@ std::vector<absl::string_view> SymbolTableImpl::decodeStrings(const SymbolTable:
                                                               size_t size) const {
   std::vector<absl::string_view> strings;
   Thread::LockGuard lock(lock_);
-  Encoding::decodeTokens(array, size,
-                         [this, &strings](Symbol symbol) ABSL_NO_THREAD_SAFETY_ANALYSIS {
-                           strings.push_back(fromSymbol(symbol));
-                         },
-                         [&strings](absl::string_view str) { strings.push_back(str); });
+  Encoding::decodeTokens(
+      array, size,
+      [this, &strings](Symbol symbol)
+          ABSL_NO_THREAD_SAFETY_ANALYSIS { strings.push_back(fromSymbol(symbol)); },
+      [&strings](absl::string_view str) { strings.push_back(str); });
   return strings;
 }
 
@@ -183,8 +184,7 @@ void SymbolTableImpl::Encoding::appendToMemBlock(StatName stat_name,
 
 SymbolTableImpl::SymbolTableImpl()
     // Have to be explicitly initialized, if we want to use the ABSL_GUARDED_BY macro.
-    : next_symbol_(FirstValidSymbol),
-      monotonic_counter_(FirstValidSymbol) {}
+    : next_symbol_(FirstValidSymbol), monotonic_counter_(FirstValidSymbol) {}
 
 SymbolTableImpl::~SymbolTableImpl() {
   // To avoid leaks into the symbol table, we expect all StatNames to be freed.
@@ -334,8 +334,8 @@ DynamicSpans SymbolTableImpl::getDynamicSpans(StatName stat_name) const {
   // Note that with fake symbol tables, the Symbol lambda is called
   // once for each character in the string, and no dynamics will
   // be recorded.
-  Encoding::decodeTokens(stat_name.data(), stat_name.dataSize(), [&index](Symbol) { ++index; },
-                         record_dynamic);
+  Encoding::decodeTokens(
+      stat_name.data(), stat_name.dataSize(), [&index](Symbol) { ++index; }, record_dynamic);
   return dynamic_spans;
 }
 

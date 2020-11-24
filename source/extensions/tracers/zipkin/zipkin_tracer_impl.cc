@@ -73,8 +73,8 @@ Driver::Driver(const envoy::config::trace::v3::ZipkinConfig& zipkin_config,
                ThreadLocal::SlotAllocator& tls, Runtime::Loader& runtime,
                const LocalInfo::LocalInfo& local_info, Random::RandomGenerator& random_generator,
                TimeSource& time_source)
-    : cm_(cluster_manager),
-      tracer_stats_{ZIPKIN_TRACER_STATS(POOL_COUNTER_PREFIX(scope, "tracing.zipkin."))},
+    : cm_(cluster_manager), tracer_stats_{ZIPKIN_TRACER_STATS(
+                                POOL_COUNTER_PREFIX(scope, "tracing.zipkin."))},
       tls_(tls.allocateSlot()), runtime_(runtime), local_info_(local_info),
       time_source_(time_source) {
   Config::Utility::checkCluster("envoy.tracers.zipkin", zipkin_config.collector_cluster(), cm_,
@@ -134,9 +134,9 @@ Tracing::SpanPtr Driver::startSpan(const Tracing::Config& config,
 
 ReporterImpl::ReporterImpl(Driver& driver, Event::Dispatcher& dispatcher,
                            const CollectorInfo& collector)
-    : driver_(driver), collector_(collector),
-      span_buffer_{
-          std::make_unique<SpanBuffer>(collector.version_, collector.shared_span_context_)},
+    : driver_(driver),
+      collector_(collector), span_buffer_{std::make_unique<SpanBuffer>(
+                                 collector.version_, collector.shared_span_context_)},
       collector_cluster_(driver_.clusterManager(), driver_.cluster()) {
   flush_timer_ = dispatcher.createTimer([this]() -> void {
     driver_.tracerStats().timer_flushed_.inc();
@@ -195,8 +195,9 @@ void ReporterImpl::flushSpans() {
       Http::AsyncClient::Request* request =
           driver_.clusterManager()
               .httpAsyncClientForCluster(collector_cluster_.info()->name())
-              .send(std::move(message), *this, Http::AsyncClient::RequestOptions().setTimeout(
-                                                   std::chrono::milliseconds(timeout)));
+              .send(std::move(message), *this,
+                    Http::AsyncClient::RequestOptions().setTimeout(
+                        std::chrono::milliseconds(timeout)));
       if (request) {
         active_requests_.add(*request);
       }

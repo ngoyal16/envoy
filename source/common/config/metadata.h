@@ -116,7 +116,7 @@ protected:
    */
   void populateFrom(const envoy::config::core::v3::Metadata& metadata) {
     auto& data_by_key = metadata.filter_metadata();
-    for (const auto & [ factory_name, factory ] :
+    for (const auto& [factory_name, factory] :
          Registry::FactoryRegistry<factoryClass>::factories()) {
       const auto& meta_iter = data_by_key.find(factory_name);
       if (meta_iter != data_by_key.end()) {

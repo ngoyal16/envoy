@@ -103,10 +103,11 @@ void Cluster::addOrUpdateWorker(
   if (new_host_map == nullptr) {
     new_host_map = std::make_shared<HostInfoMap>(*current_map);
   }
-  const auto emplaced = new_host_map->try_emplace(
-      host, host_info, std::make_shared<Upstream::LogicalHost>(info(), host, host_info->address(),
-                                                               dummy_locality_lb_endpoint_,
-                                                               dummy_lb_endpoint_, nullptr));
+  const auto emplaced =
+      new_host_map->try_emplace(host, host_info,
+                                std::make_shared<Upstream::LogicalHost>(
+                                    info(), host, host_info->address(), dummy_locality_lb_endpoint_,
+                                    dummy_lb_endpoint_, nullptr));
   if (hosts_added == nullptr) {
     hosts_added = std::make_unique<Upstream::HostVector>();
   }

@@ -66,9 +66,9 @@ MaglevTable::MaglevTable(const NormalizedHostWeightVector& normalized_host_weigh
 
   if (ENVOY_LOG_CHECK_LEVEL(trace)) {
     for (uint64_t i = 0; i < table_.size(); i++) {
-      ENVOY_LOG(trace, "maglev: i={} host={}", i, use_hostname_for_hashing
-                                                      ? table_[i]->hostname()
-                                                      : table_[i]->address()->asString());
+      ENVOY_LOG(trace, "maglev: i={} host={}", i,
+                use_hostname_for_hashing ? table_[i]->hostname()
+                                         : table_[i]->address()->asString());
     }
   }
 }

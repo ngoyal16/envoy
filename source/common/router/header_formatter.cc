@@ -159,8 +159,9 @@ parsePerRequestStateField(absl::string_view param_str) {
 
     // Value exists but isn't string accessible is a contract violation; throw an error.
     if (!filter_state.hasData<StringAccessor>(param)) {
-      ENVOY_LOG_MISC(debug, "Invalid header information: PER_REQUEST_STATE value \"{}\" "
-                            "exists but is not string accessible",
+      ENVOY_LOG_MISC(debug,
+                     "Invalid header information: PER_REQUEST_STATE value \"{}\" "
+                     "exists but is not string accessible",
                      param);
       return std::string();
     }

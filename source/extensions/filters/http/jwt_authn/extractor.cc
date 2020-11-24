@@ -89,8 +89,9 @@ class ExtractorImpl : public Logger::Loggable<Logger::Id::jwt>, public Extractor
 public:
   ExtractorImpl(const JwtProvider& provider);
 
-  ExtractorImpl(const std::vector<
-                const envoy::extensions::filters::http::jwt_authn::v3::JwtProvider*>& providers);
+  ExtractorImpl(
+      const std::vector<const envoy::extensions::filters::http::jwt_authn::v3::JwtProvider*>&
+          providers);
 
   std::vector<JwtLocationConstPtr> extract(const Http::RequestHeaderMap& headers) const override;
 

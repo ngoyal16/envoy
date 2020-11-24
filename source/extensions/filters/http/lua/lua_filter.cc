@@ -337,16 +337,15 @@ void StreamHandleWrapper::onSuccess(const Http::AsyncClient::Request&,
 
   // We need to build a table with the headers as return param 1. The body will be return param 2.
   lua_newtable(coroutine_.luaState());
-  response->headers().iterate([lua_State = coroutine_.luaState()](const Http::HeaderEntry& header)
-                                  ->Http::HeaderMap::Iterate {
-                                    lua_pushlstring(lua_State, header.key().getStringView().data(),
-                                                    header.key().getStringView().length());
-                                    lua_pushlstring(lua_State,
-                                                    header.value().getStringView().data(),
-                                                    header.value().getStringView().length());
-                                    lua_settable(lua_State, -3);
-                                    return Http::HeaderMap::Iterate::Continue;
-                                  });
+  response->headers().iterate([lua_State = coroutine_.luaState()](
+                                  const Http::HeaderEntry& header) -> Http::HeaderMap::Iterate {
+    lua_pushlstring(lua_State, header.key().getStringView().data(),
+                    header.key().getStringView().length());
+    lua_pushlstring(lua_State, header.value().getStringView().data(),
+                    header.value().getStringView().length());
+    lua_settable(lua_State, -3);
+    return Http::HeaderMap::Iterate::Continue;
+  });
 
   // TODO(mattklein123): Avoid double copy here.
   if (response->body().length() > 0) {

@@ -20,12 +20,13 @@ WatcherImpl::WatcherImpl(Event::Dispatcher& dispatcher, Api::Api& api)
   result = write_handle_->setBlocking(false);
   ASSERT(result.rc_ == 0);
 
-  read_handle_->initializeFileEvent(dispatcher,
-                                    [this](uint32_t events) -> void {
-                                      ASSERT(events == Event::FileReadyType::Read);
-                                      onDirectoryEvent();
-                                    },
-                                    Event::FileTriggerType::Level, Event::FileReadyType::Read);
+  read_handle_->initializeFileEvent(
+      dispatcher,
+      [this](uint32_t events) -> void {
+        ASSERT(events == Event::FileReadyType::Read);
+        onDirectoryEvent();
+      },
+      Event::FileTriggerType::Level, Event::FileReadyType::Read);
 
   thread_exit_event_ = ::CreateEvent(nullptr, false, false, nullptr);
   ASSERT(thread_exit_event_ != NULL);

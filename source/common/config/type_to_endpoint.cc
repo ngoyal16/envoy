@@ -185,11 +185,11 @@ TypeUrlToVersionedServiceMap* buildTypeUrlToServiceMap() {
                }},
            }},
        }) {
-    for (const auto & [ registered_service_name, registered_service_info ] : registered) {
+    for (const auto& [registered_service_name, registered_service_info] : registered) {
       const TypeUrl resource_type_url = getResourceTypeUrl(registered_service_name);
       VersionedService& service = (*type_url_to_versioned_service_map)[resource_type_url];
 
-      for (const auto & [ transport_api_version, service_name ] : registered_service_info.names_) {
+      for (const auto& [transport_api_version, service_name] : registered_service_info.names_) {
         const auto* service_desc =
             Protobuf::DescriptorPool::generated_pool()->FindServiceByName(service_name);
         ASSERT(service_desc != nullptr, fmt::format("{} missing", service_name));

@@ -78,12 +78,12 @@ public:
   ~AltsSharedState() override { grpc_alts_shared_resource_dedicated_shutdown(); }
 
 private:
-// There is blanket google-grpc initialization in MainCommonBase, but that
-// doesn't cover unit tests. However, putting blanket coverage in ProcessWide
-// causes background threaded memory allocation in all unit tests making it
-// hard to measure memory. Thus we also initialize grpc using our idempotent
-// wrapper-class in classes that need it. See
-// https://github.com/envoyproxy/envoy/issues/8282 for details.
+  // There is blanket google-grpc initialization in MainCommonBase, but that
+  // doesn't cover unit tests. However, putting blanket coverage in ProcessWide
+  // causes background threaded memory allocation in all unit tests making it
+  // hard to measure memory. Thus we also initialize grpc using our idempotent
+  // wrapper-class in classes that need it. See
+  // https://github.com/envoyproxy/envoy/issues/8282 for details.
 #ifdef ENVOY_GOOGLE_GRPC
   Grpc::GoogleGrpcContext google_grpc_context_;
 #endif
@@ -105,9 +105,11 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
   HandshakeValidator validator = createHandshakeValidator(config);
 
   const std::string& handshaker_service = config.handshaker_service();
-  HandshakerFactory factory = [handshaker_service, is_upstream, alts_shared_state](
-      Event::Dispatcher& dispatcher, const Network::Address::InstanceConstSharedPtr& local_address,
-      const Network::Address::InstanceConstSharedPtr&) -> TsiHandshakerPtr {
+  HandshakerFactory factory =
+      [handshaker_service, is_upstream,
+       alts_shared_state](Event::Dispatcher& dispatcher,
+                          const Network::Address::InstanceConstSharedPtr& local_address,
+                          const Network::Address::InstanceConstSharedPtr&) -> TsiHandshakerPtr {
     ASSERT(local_address != nullptr);
 
     GrpcAltsCredentialsOptionsPtr options;

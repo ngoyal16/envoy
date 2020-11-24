@@ -22,8 +22,8 @@ bool WatcherHandleImpl::ready() const {
 }
 
 WatcherImpl::WatcherImpl(absl::string_view name, ReadyFn fn)
-    : name_(name), fn_(std::make_shared<TargetAwareReadyFn>([callback = std::move(fn)](
-                       absl::string_view) { callback(); })) {}
+    : name_(name), fn_(std::make_shared<TargetAwareReadyFn>(
+                       [callback = std::move(fn)](absl::string_view) { callback(); })) {}
 
 WatcherImpl::WatcherImpl(absl::string_view name, TargetAwareReadyFn fn)
     : name_(name), fn_(std::make_shared<TargetAwareReadyFn>(std::move(fn))) {}

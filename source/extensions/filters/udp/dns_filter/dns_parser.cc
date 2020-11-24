@@ -382,8 +382,9 @@ DnsAnswerRecordPtr DnsMessageParser::parseDnsAnswerRecord(const Buffer::Instance
   }
 
   if (available_bytes < (sizeof(uint32_t) + 3 * sizeof(uint16_t))) {
-    ENVOY_LOG(debug, "Insufficient data in buffer to read answer record data."
-                     "Available bytes: {}",
+    ENVOY_LOG(debug,
+              "Insufficient data in buffer to read answer record data."
+              "Available bytes: {}",
               available_bytes);
     return nullptr;
   }
@@ -467,8 +468,9 @@ DnsQueryRecordPtr DnsMessageParser::parseDnsQueryRecord(const Buffer::InstancePt
 
   // After reading the name we should have data for the record type and class
   if (available_bytes < 2 * sizeof(uint16_t)) {
-    ENVOY_LOG(debug, "Insufficient data in buffer to read query record type and class. "
-                     "Available bytes: {}",
+    ENVOY_LOG(debug,
+              "Insufficient data in buffer to read query record type and class. "
+              "Available bytes: {}",
               available_bytes);
     return nullptr;
   }

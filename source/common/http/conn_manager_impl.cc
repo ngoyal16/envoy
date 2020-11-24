@@ -550,19 +550,18 @@ void ConnectionManagerImpl::RdsRouteConfigUpdateRequester::requestSrdsUpdate(
   // dynamic cast in constructor always succeed and the pointer should not be null here.
   ASSERT(scoped_route_config_provider_ != nullptr);
   Http::RouteConfigUpdatedCallback scoped_route_config_updated_cb =
-      Http::RouteConfigUpdatedCallback([
-        this, weak_route_config_updated_cb =
-                  std::weak_ptr<Http::RouteConfigUpdatedCallback>(route_config_updated_cb)
-      ](bool scope_exist) {
-        // If the callback can be locked, this ActiveStream is still alive.
-        if (auto cb = weak_route_config_updated_cb.lock()) {
-          // Refresh the route before continue the filter chain.
-          if (scope_exist) {
-            parent_.refreshCachedRoute();
-          }
-          (*cb)(scope_exist && parent_.hasCachedRoute());
-        }
-      });
+      Http::RouteConfigUpdatedCallback(
+          [this, weak_route_config_updated_cb = std::weak_ptr<Http::RouteConfigUpdatedCallback>(
+                     route_config_updated_cb)](bool scope_exist) {
+            // If the callback can be locked, this ActiveStream is still alive.
+            if (auto cb = weak_route_config_updated_cb.lock()) {
+              // Refresh the route before continue the filter chain.
+              if (scope_exist) {
+                parent_.refreshCachedRoute();
+              }
+              (*cb)(scope_exist && parent_.hasCachedRoute());
+            }
+          });
   scoped_route_config_provider_->onDemandRdsUpdate(std::move(scope_key), thread_local_dispatcher,
                                                    std::move(scoped_route_config_updated_cb));
 }

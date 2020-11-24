@@ -21,8 +21,9 @@ RoleBasedAccessControlFilterConfig::RoleBasedAccessControlFilterConfig(
       enforcement_type_(proto_config.enforcement_type()) {}
 
 Network::FilterStatus RoleBasedAccessControlFilter::onData(Buffer::Instance&, bool) {
-  ENVOY_LOG(debug, "checking connection: requestedServerName: {}, sourceIP: {}, directRemoteIP: {},"
-                   "remoteIP: {}, localAddress: {}, ssl: {}, dynamicMetadata: {}",
+  ENVOY_LOG(debug,
+            "checking connection: requestedServerName: {}, sourceIP: {}, directRemoteIP: {},"
+            "remoteIP: {}, localAddress: {}, ssl: {}, dynamicMetadata: {}",
             callbacks_->connection().requestedServerName(),
             callbacks_->connection().remoteAddress()->asString(),
             callbacks_->connection().streamInfo().downstreamDirectRemoteAddress()->asString(),

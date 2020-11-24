@@ -22,18 +22,19 @@ TimerImpl::TimerImpl(Libevent::BasePtr& libevent, TimerCb cb, Dispatcher& dispat
                     "envoy.reloadable_features.activate_timers_next_event_loop")
               : true) {
   ASSERT(cb_);
-  evtimer_assign(&raw_event_, libevent.get(),
-                 [](evutil_socket_t, short, void* arg) -> void {
-                   TimerImpl* timer = static_cast<TimerImpl*>(arg);
-                   if (timer->object_ == nullptr) {
-                     timer->cb_();
-                     return;
-                   }
-                   ScopeTrackerScopeState scope(timer->object_, timer->dispatcher_);
-                   timer->object_ = nullptr;
-                   timer->cb_();
-                 },
-                 this);
+  evtimer_assign(
+      &raw_event_, libevent.get(),
+      [](evutil_socket_t, short, void* arg) -> void {
+        TimerImpl* timer = static_cast<TimerImpl*>(arg);
+        if (timer->object_ == nullptr) {
+          timer->cb_();
+          return;
+        }
+        ScopeTrackerScopeState scope(timer->object_, timer->dispatcher_);
+        timer->object_ = nullptr;
+        timer->cb_();
+      },
+      this);
 }
 
 void TimerImpl::disableTimer() { event_del(&raw_event_); }

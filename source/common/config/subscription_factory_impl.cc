@@ -69,9 +69,10 @@ SubscriptionPtr SubscriptionFactoryImpl::subscriptionFromConfigSource(
     case envoy::config::core::v3::ApiConfigSource::GRPC:
       return std::make_unique<GrpcSubscriptionImpl>(
           std::make_shared<Config::GrpcMuxImpl>(
-              local_info_, Utility::factoryForGrpcApiConfigSource(cm_.grpcAsyncClientManager(),
-                                                                  api_config_source, scope, true)
-                               ->create(),
+              local_info_,
+              Utility::factoryForGrpcApiConfigSource(cm_.grpcAsyncClientManager(),
+                                                     api_config_source, scope, true)
+                  ->create(),
               dispatcher_, sotwGrpcMethod(type_url, api_config_source.transport_api_version()),
               api_config_source.transport_api_version(), api_.randomGenerator(), scope,
               Utility::parseRateLimitSettings(api_config_source),

@@ -186,8 +186,8 @@ public:
                bool respect_expected_rq_timeout,
                const Protobuf::RepeatedPtrField<std::string>& strict_check_headers,
                TimeSource& time_source, Http::Context& http_context)
-      : scope_(scope), local_info_(local_info), cm_(cm), runtime_(runtime), random_(random),
-        stats_{ALL_ROUTER_STATS(POOL_COUNTER_PREFIX(scope, stat_prefix))},
+      : scope_(scope), local_info_(local_info), cm_(cm), runtime_(runtime),
+        random_(random), stats_{ALL_ROUTER_STATS(POOL_COUNTER_PREFIX(scope, stat_prefix))},
         emit_dynamic_stats_(emit_dynamic_stats), start_child_span_(start_child_span),
         suppress_envoy_headers_(suppress_envoy_headers),
         respect_expected_rq_timeout_(respect_expected_rq_timeout), http_context_(http_context),

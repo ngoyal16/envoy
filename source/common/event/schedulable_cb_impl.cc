@@ -11,12 +11,13 @@ SchedulableCallbackImpl::SchedulableCallbackImpl(Libevent::BasePtr& libevent,
                                                  std::function<void()> cb)
     : cb_(cb) {
   ASSERT(cb_);
-  evtimer_assign(&raw_event_, libevent.get(),
-                 [](evutil_socket_t, short, void* arg) -> void {
-                   SchedulableCallbackImpl* cb = static_cast<SchedulableCallbackImpl*>(arg);
-                   cb->cb_();
-                 },
-                 this);
+  evtimer_assign(
+      &raw_event_, libevent.get(),
+      [](evutil_socket_t, short, void* arg) -> void {
+        SchedulableCallbackImpl* cb = static_cast<SchedulableCallbackImpl*>(arg);
+        cb->cb_();
+      },
+      this);
 }
 
 void SchedulableCallbackImpl::scheduleCallbackCurrentIteration() {

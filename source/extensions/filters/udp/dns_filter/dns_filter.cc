@@ -513,7 +513,7 @@ bool DnsFilter::resolveConfiguredService(DnsQueryContextPtr& context, const DnsQ
     // for each service target address, we must resolve the target's IP. The target record does not
     // specify the address type, so we must deduce it when building the record. It is possible that
     // the configured target's IP addresses are a mix of A and AAAA records.
-    for (const auto & [ target_name, attributes ] : service_config->targets_) {
+    for (const auto& [target_name, attributes] : service_config->targets_) {
       const auto* configured_address_list = getAddressListForDomain(target_name);
 
       if (configured_address_list != nullptr) {

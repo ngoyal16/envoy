@@ -515,8 +515,8 @@ StreamRateLimiter::StreamRateLimiter(uint64_t max_kbps, uint64_t max_buffered_da
                                      std::function<void()> continue_cb, TimeSource& time_source,
                                      Event::Dispatcher& dispatcher, const ScopeTrackedObject& scope)
     : // bytes_per_time_slice is KiB converted to bytes divided by the number of ticks per second.
-      bytes_per_time_slice_((max_kbps * 1024) / SecondDivisor),
-      write_data_cb_(write_data_cb), continue_cb_(continue_cb), scope_(scope),
+      bytes_per_time_slice_((max_kbps * 1024) / SecondDivisor), write_data_cb_(write_data_cb),
+      continue_cb_(continue_cb), scope_(scope),
       // The token bucket is configured with a max token count of the number of ticks per second,
       // and refills at the same rate, so that we have a per second limit which refills gradually in
       // ~63ms intervals.

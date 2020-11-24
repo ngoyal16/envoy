@@ -11,13 +11,10 @@ QuicFilterManagerConnectionImpl::QuicFilterManagerConnectionImpl(EnvoyQuicConnec
     // Using this for purpose other than logging is not safe. Because QUIC connection id can be
     // 18 bytes, so there might be collision when it's hashed to 8 bytes.
     : Network::ConnectionImplBase(dispatcher, /*id=*/connection.connection_id().Hash()),
-      quic_connection_(&connection),
-      filter_manager_(*this),
-      stream_info_(dispatcher.timeSource()),
-      write_buffer_watermark_simulation_(send_buffer_limit / 2, send_buffer_limit,
-                                         [this]() { onSendBufferLowWatermark(); },
-                                         [this]() { onSendBufferHighWatermark(); },
-                                         ENVOY_LOGGER()) {
+      quic_connection_(&connection), filter_manager_(*this), stream_info_(dispatcher.timeSource()),
+      write_buffer_watermark_simulation_(
+          send_buffer_limit / 2, send_buffer_limit, [this]() { onSendBufferLowWatermark(); },
+          [this]() { onSendBufferHighWatermark(); }, ENVOY_LOGGER()) {
   stream_info_.protocol(Http::Protocol::Http3);
 }
 

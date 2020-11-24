@@ -66,8 +66,9 @@ void ActiveMessage::fillAckMessageDirective(Buffer::Instance& buffer, const std:
     ENVOY_LOG(trace, "Process a message: consumer group: {}, topic: {}, messageId: {}",
               decoded_topic, group, Decoder::decodeMsgId(buffer, cursor));
     if (!absl::StartsWith(decoded_topic, RetryTopicPrefix) && decoded_topic != topic) {
-      ENVOY_LOG(warn, "Decoded topic from pop-response does not equal to request. Decoded topic: "
-                      "{}, request topic: {}, message ID: {}",
+      ENVOY_LOG(warn,
+                "Decoded topic from pop-response does not equal to request. Decoded topic: "
+                "{}, request topic: {}, message ID: {}",
                 decoded_topic, topic, Decoder::decodeMsgId(buffer, cursor));
     }
 

@@ -67,8 +67,8 @@ private:
   const Http::RequestHeaderMap& request_headers_;
 
   static Http::HeaderMap::ConstIterateCb headerMapCallback(OpenTracingCb callback) {
-    return [callback = std::move(callback)](const Http::HeaderEntry& header)
-        ->Http::HeaderMap::Iterate {
+    return [callback =
+                std::move(callback)](const Http::HeaderEntry& header) -> Http::HeaderMap::Iterate {
       opentracing::string_view key{header.key().getStringView().data(),
                                    header.key().getStringView().length()};
       opentracing::string_view value{header.value().getStringView().data(),

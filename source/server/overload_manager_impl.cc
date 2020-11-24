@@ -166,7 +166,7 @@ parseTimerMinimums(const ProtobufWkt::Any& typed_config,
             : Event::ScaledTimerMinimum(
                   Event::ScaledMinimum(scale_timer.min_scale().value() / 100.0));
 
-    auto[_, inserted] = timer_map.insert(std::make_pair(timer_type, minimum));
+    auto [_, inserted] = timer_map.insert(std::make_pair(timer_type, minimum));
     if (!inserted) {
       throw EnvoyException(fmt::format("Found duplicate entry for timer type {}",
                                        Config::TimerType_Name(scale_timer.timer())));
@@ -392,7 +392,7 @@ OverloadManagerImpl::createScaledRangeTimerManager(Event::Dispatcher& dispatcher
 
 void OverloadManagerImpl::updateResourcePressure(const std::string& resource, double pressure,
                                                  FlushEpochId flush_epoch) {
-  auto[start, end] = resource_to_actions_.equal_range(resource);
+  auto [start, end] = resource_to_actions_.equal_range(resource);
 
   std::for_each(start, end, [&](ResourceToActionMap::value_type& entry) {
     const NamedOverloadActionSymbolTable::Symbol action = entry.second;
@@ -415,7 +415,7 @@ void OverloadManagerImpl::updateResourcePressure(const std::string& resource, do
       // causes the action to have value B, B would have been the result for whichever order the
       // updates to resources 1 and 2 came in.
       state_updates_to_flush_.insert_or_assign(action, state);
-      auto[callbacks_start, callbacks_end] = action_to_callbacks_.equal_range(action);
+      auto [callbacks_start, callbacks_end] = action_to_callbacks_.equal_range(action);
       std::for_each(callbacks_start, callbacks_end, [&](ActionToCallbackMap::value_type& cb_entry) {
         callbacks_to_flush_.insert_or_assign(&cb_entry.second, state);
       });
@@ -440,16 +440,16 @@ void OverloadManagerImpl::flushResourceUpdates() {
         absl::flat_hash_map<NamedOverloadActionSymbolTable::Symbol, OverloadActionState>>();
     std::swap(*shared_updates, state_updates_to_flush_);
 
-    tls_.runOnAllThreads([updates = std::move(shared_updates)](
-        OptRef<ThreadLocalOverloadStateImpl> overload_state) {
-      for (const auto & [ action, state ] : *updates) {
-        overload_state->setState(action, state);
-      }
-    });
+    tls_.runOnAllThreads(
+        [updates = std::move(shared_updates)](OptRef<ThreadLocalOverloadStateImpl> overload_state) {
+          for (const auto& [action, state] : *updates) {
+            overload_state->setState(action, state);
+          }
+        });
   }
 
-  for (const auto & [ cb, state ] : callbacks_to_flush_) {
-    cb->dispatcher_.post([ cb = cb, state = state ]() { cb->callback_(state); });
+  for (const auto& [cb, state] : callbacks_to_flush_) {
+    cb->dispatcher_.post([cb = cb, state = state]() { cb->callback_(state); });
   }
   callbacks_to_flush_.clear();
 }

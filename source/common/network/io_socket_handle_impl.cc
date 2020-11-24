@@ -99,13 +99,12 @@ Api::IoCallUint64Result IoSocketHandleImpl::readv(uint64_t max_length, Buffer::R
 
   // Emulated edge events need to registered if the socket operation did not complete
   // because the socket would block.
-  if
-    constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-      // Some tests try to read without initializing the file_event.
-      if (result.wouldBlock() && file_event_) {
-        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
-      }
+  if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+    // Some tests try to read without initializing the file_event.
+    if (result.wouldBlock() && file_event_) {
+      file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
     }
+  }
   return result;
 }
 
@@ -127,13 +126,12 @@ Api::IoCallUint64Result IoSocketHandleImpl::read(Buffer::Instance& buffer, uint6
 
   // Emulated edge events need to registered if the socket operation did not complete
   // because the socket would block.
-  if
-    constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-      // Some tests try to read without initializing the file_event.
-      if (result.wouldBlock() && file_event_) {
-        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
-      }
+  if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+    // Some tests try to read without initializing the file_event.
+    if (result.wouldBlock() && file_event_) {
+      file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
     }
+  }
   return result;
 }
 
@@ -156,13 +154,12 @@ Api::IoCallUint64Result IoSocketHandleImpl::writev(const Buffer::RawSlice* slice
 
   // Emulated edge events need to registered if the socket operation did not complete
   // because the socket would block.
-  if
-    constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-      // Some tests try to write without initializing the file_event.
-      if (result.wouldBlock() && file_event_) {
-        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
-      }
+  if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+    // Some tests try to write without initializing the file_event.
+    if (result.wouldBlock() && file_event_) {
+      file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
     }
+  }
   return result;
 }
 
@@ -176,13 +173,12 @@ Api::IoCallUint64Result IoSocketHandleImpl::write(Buffer::Instance& buffer) {
 
   // Emulated edge events need to registered if the socket operation did not complete
   // because the socket would block.
-  if
-    constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-      // Some tests try to read without initializing the file_event.
-      if (result.wouldBlock() && file_event_) {
-        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
-      }
+  if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+    // Some tests try to read without initializing the file_event.
+    if (result.wouldBlock() && file_event_) {
+      file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
     }
+  }
   return result;
 }
 
@@ -223,12 +219,11 @@ Api::IoCallUint64Result IoSocketHandleImpl::sendmsg(const Buffer::RawSlice* slic
     auto io_result = sysCallResultToIoCallResult(result);
     // Emulated edge events need to registered if the socket operation did not complete
     // because the socket would block.
-    if
-      constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-        if (io_result.wouldBlock() && file_event_) {
-          file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
-        }
+    if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+      if (io_result.wouldBlock() && file_event_) {
+        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
       }
+    }
     return io_result;
   } else {
     const size_t space_v6 = CMSG_SPACE(sizeof(in6_pktinfo));
@@ -274,12 +269,11 @@ Api::IoCallUint64Result IoSocketHandleImpl::sendmsg(const Buffer::RawSlice* slic
     auto io_result = sysCallResultToIoCallResult(result);
     // Emulated edge events need to registered if the socket operation did not complete
     // because the socket would block.
-    if
-      constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-        if (io_result.wouldBlock() && file_event_) {
-          file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
-        }
+    if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+      if (io_result.wouldBlock() && file_event_) {
+        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Write);
       }
+    }
     return io_result;
   }
 }
@@ -372,12 +366,11 @@ Api::IoCallUint64Result IoSocketHandleImpl::recvmsg(Buffer::RawSlice* slices,
     auto io_result = sysCallResultToIoCallResult(result);
     // Emulated edge events need to registered if the socket operation did not complete
     // because the socket would block.
-    if
-      constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-        if (io_result.wouldBlock() && file_event_) {
-          file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
-        }
+    if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+      if (io_result.wouldBlock() && file_event_) {
+        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
       }
+    }
     return io_result;
   }
   if ((hdr.msg_flags & MSG_TRUNC) != 0) {
@@ -472,12 +465,11 @@ Api::IoCallUint64Result IoSocketHandleImpl::recvmmsg(RawSliceArrays& slices, uin
     auto io_result = sysCallResultToIoCallResult(result);
     // Emulated edge events need to registered if the socket operation did not complete
     // because the socket would block.
-    if
-      constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-        if (io_result.wouldBlock() && file_event_) {
-          file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
-        }
+    if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+      if (io_result.wouldBlock() && file_event_) {
+        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
       }
+    }
     return io_result;
   }
 
@@ -535,12 +527,11 @@ Api::IoCallUint64Result IoSocketHandleImpl::recv(void* buffer, size_t length, in
   auto io_result = sysCallResultToIoCallResult(result);
   // Emulated edge events need to registered if the socket operation did not complete
   // because the socket would block.
-  if
-    constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-      if (io_result.wouldBlock() && file_event_) {
-        file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
-      }
+  if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+    if (io_result.wouldBlock() && file_event_) {
+      file_event_->registerEventIfEmulatedEdge(Event::FileReadyType::Read);
     }
+  }
   return io_result;
 }
 

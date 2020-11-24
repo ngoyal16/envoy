@@ -120,7 +120,8 @@ Http::FilterDataStatus CacheFilter::encodeData(Buffer::Instance& data, bool end_
   if (insert_) {
     ENVOY_STREAM_LOG(debug, "CacheFilter::encodeData inserting body", *encoder_callbacks_);
     // TODO(toddmgreer): Wait for the cache if necessary.
-    insert_->insertBody(data, [](bool) {}, end_stream);
+    insert_->insertBody(
+        data, [](bool) {}, end_stream);
   }
   return Http::FilterDataStatus::Continue;
 }
@@ -139,8 +140,8 @@ void CacheFilter::getHeaders(Http::RequestHeaderMap& request_headers) {
 
   // The dispatcher needs to be captured because there's no guarantee that
   // decoder_callbacks_->dispatcher() is thread-safe.
-  lookup_->getHeaders([ self, &request_headers,
-                        &dispatcher = decoder_callbacks_->dispatcher() ](LookupResult && result) {
+  lookup_->getHeaders([self, &request_headers,
+                       &dispatcher = decoder_callbacks_->dispatcher()](LookupResult&& result) {
     // The callback is posted to the dispatcher to make sure it is called on the worker thread.
     // The lambda passed to dispatcher.post() needs to be copyable as it will be used to
     // initialize a std::function. Therefore, it cannot capture anything non-copyable.
@@ -148,12 +149,11 @@ void CacheFilter::getHeaders(Http::RequestHeaderMap& request_headers) {
     // non-copyable. Hence, "result" is decomposed when captured, and re-instantiated inside the
     // lambda so that "result.headers_" can be captured as a raw pointer, then wrapped in a
     // unique_ptr when the result is re-instantiated.
-    dispatcher.post([
-      self, &request_headers, status = result.cache_entry_status_,
-      headers_raw_ptr = result.headers_.release(),
-      response_ranges = std::move(result.response_ranges_), content_length = result.content_length_,
-      has_trailers = result.has_trailers_
-    ]() mutable {
+    dispatcher.post([self, &request_headers, status = result.cache_entry_status_,
+                     headers_raw_ptr = result.headers_.release(),
+                     response_ranges = std::move(result.response_ranges_),
+                     content_length = result.content_length_,
+                     has_trailers = result.has_trailers_]() mutable {
       // Wrap the raw pointer in a unique_ptr before checking to avoid memory leaks.
       Http::ResponseHeaderMapPtr headers = absl::WrapUnique(headers_raw_ptr);
       if (CacheFilterSharedPtr cache_filter = self.lock()) {
@@ -177,14 +177,14 @@ void CacheFilter::getBody() {
 
   // The dispatcher needs to be captured because there's no guarantee that
   // decoder_callbacks_->dispatcher() is thread-safe.
-  lookup_->getBody(remaining_ranges_[0], [ self, &dispatcher = decoder_callbacks_->dispatcher() ](
-                                             Buffer::InstancePtr && body) {
+  lookup_->getBody(remaining_ranges_[0], [self, &dispatcher = decoder_callbacks_->dispatcher()](
+                                             Buffer::InstancePtr&& body) {
     // The callback is posted to the dispatcher to make sure it is called on the worker thread.
     // The lambda passed to dispatcher.post() needs to be copyable as it will be used to
     // initialize a std::function. Therefore, it cannot capture anything non-copyable.
     // "body" is a unique_ptr, which is non-copyable. Hence, it is captured as a raw pointer then
     // wrapped in a unique_ptr inside the lambda.
-    dispatcher.post([ self, body_raw_ptr = body.release() ] {
+    dispatcher.post([self, body_raw_ptr = body.release()] {
       // Wrap the raw pointer in a unique_ptr before checking to avoid memory leaks.
       Buffer::InstancePtr body = absl::WrapUnique(body_raw_ptr);
       if (CacheFilterSharedPtr cache_filter = self.lock()) {
@@ -207,14 +207,14 @@ void CacheFilter::getTrailers() {
 
   // The dispatcher needs to be captured because there's no guarantee that
   // decoder_callbacks_->dispatcher() is thread-safe.
-  lookup_->getTrailers([ self, &dispatcher = decoder_callbacks_->dispatcher() ](
-      Http::ResponseTrailerMapPtr && trailers) {
+  lookup_->getTrailers([self, &dispatcher = decoder_callbacks_->dispatcher()](
+                           Http::ResponseTrailerMapPtr&& trailers) {
     // The callback is posted to the dispatcher to make sure it is called on the worker thread.
     // The lambda passed to dispatcher.post() needs to be copyable as it will be used to
     // initialize a std::function. Therefore, it cannot capture anything non-copyable.
     // "trailers" is a unique_ptr, which is non-copyable. Hence, it is captured as a raw
     // pointer then wrapped in a unique_ptr inside the lambda.
-    dispatcher.post([ self, trailers_raw_ptr = trailers.release() ] {
+    dispatcher.post([self, trailers_raw_ptr = trailers.release()] {
       // Wrap the raw pointer in a unique_ptr before checking to avoid memory leaks.
       Http::ResponseTrailerMapPtr trailers = absl::WrapUnique(trailers_raw_ptr);
       if (CacheFilterSharedPtr cache_filter = self.lock()) {
@@ -406,9 +406,8 @@ bool CacheFilter::shouldUpdateCachedEntry(const Http::ResponseHeaderMap& respons
   // the cached response should not be updated.
   const Http::HeaderEntry* response_etag = response_headers.getInline(etag_handle.handle());
   const Http::HeaderEntry* cached_etag = lookup_result_->headers_->getInline(etag_handle.handle());
-  return !response_etag ||
-         (cached_etag &&
-          cached_etag->value().getStringView() == response_etag->value().getStringView());
+  return !response_etag || (cached_etag && cached_etag->value().getStringView() ==
+                                               response_etag->value().getStringView());
 }
 
 void CacheFilter::injectValidationHeaders(Http::RequestHeaderMap& request_headers) {

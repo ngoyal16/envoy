@@ -45,8 +45,9 @@ InstanceImpl::InstanceImpl(
     Extensions::Common::Redis::ClusterRefreshManagerSharedPtr refresh_manager)
     : cluster_name_(cluster_name), cm_(cm), client_factory_(client_factory),
       tls_(tls.allocateSlot()), config_(new Common::Redis::Client::ConfigImpl(config)), api_(api),
-      stats_scope_(std::move(stats_scope)), redis_command_stats_(redis_command_stats),
-      redis_cluster_stats_{REDIS_CLUSTER_STATS(POOL_COUNTER(*stats_scope_))},
+      stats_scope_(std::move(stats_scope)),
+      redis_command_stats_(redis_command_stats), redis_cluster_stats_{REDIS_CLUSTER_STATS(
+                                                     POOL_COUNTER(*stats_scope_))},
       refresh_manager_(std::move(refresh_manager)) {}
 
 void InstanceImpl::init() {

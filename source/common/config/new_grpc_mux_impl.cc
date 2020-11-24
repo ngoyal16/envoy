@@ -78,8 +78,9 @@ void NewGrpcMuxImpl::onDiscoveryResponse(
     }
   }
   if (sub == subscriptions_.end()) {
-    ENVOY_LOG(warn, "Dropping received DeltaDiscoveryResponse (with version {}) for non-existent "
-                    "subscription {}.",
+    ENVOY_LOG(warn,
+              "Dropping received DeltaDiscoveryResponse (with version {}) for non-existent "
+              "subscription {}.",
               message->system_version_info(), message->type_url());
     return;
   }
@@ -89,7 +90,7 @@ void NewGrpcMuxImpl::onDiscoveryResponse(
 }
 
 void NewGrpcMuxImpl::onStreamEstablished() {
-  for (auto & [ type_url, subscription ] : subscriptions_) {
+  for (auto& [type_url, subscription] : subscriptions_) {
     UNREFERENCED_PARAMETER(type_url);
     subscription->sub_state_.markStreamFresh();
   }
@@ -105,7 +106,7 @@ void NewGrpcMuxImpl::onEstablishmentFailure() {
   absl::flat_hash_map<std::string, DeltaSubscriptionState*> all_subscribed;
   absl::flat_hash_map<std::string, DeltaSubscriptionState*> already_called;
   do {
-    for (auto & [ type_url, subscription ] : subscriptions_) {
+    for (auto& [type_url, subscription] : subscriptions_) {
       all_subscribed[type_url] = &subscription->sub_state_;
     }
     for (auto& sub : all_subscribed) {

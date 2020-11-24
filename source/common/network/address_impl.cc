@@ -84,9 +84,8 @@ Address::InstanceConstSharedPtr addressFromSockAddr(const sockaddr_storage& ss, 
   case AF_UNIX: {
     const struct sockaddr_un* sun = reinterpret_cast<const struct sockaddr_un*>(&ss);
     ASSERT(AF_UNIX == sun->sun_family);
-    RELEASE_ASSERT(ss_len == 0 ||
-                       static_cast<unsigned int>(ss_len) >=
-                           offsetof(struct sockaddr_un, sun_path) + 1,
+    RELEASE_ASSERT(ss_len == 0 || static_cast<unsigned int>(ss_len) >=
+                                      offsetof(struct sockaddr_un, sun_path) + 1,
                    "");
     return std::make_shared<Address::PipeInstance>(sun, ss_len);
   }
@@ -269,11 +268,11 @@ PipeInstance::PipeInstance(const std::string& pipe_path, mode_t mode,
   memset(&pipe_.address_, 0, sizeof(pipe_.address_));
   pipe_.address_.sun_family = AF_UNIX;
   if (pipe_path[0] == '@') {
-// This indicates an abstract namespace.
-// In this case, null bytes in the name have no special significance, and so we copy all
-// characters of pipe_path to sun_path, including null bytes in the name. The pathname must also
-// be null terminated. The friendly name is the address path with embedded nulls replaced with
-// '@' for consistency with the first character.
+    // This indicates an abstract namespace.
+    // In this case, null bytes in the name have no special significance, and so we copy all
+    // characters of pipe_path to sun_path, including null bytes in the name. The pathname must also
+    // be null terminated. The friendly name is the address path with embedded nulls replaced with
+    // '@' for consistency with the first character.
 #if !defined(__linux__)
     throw EnvoyException("Abstract AF_UNIX sockets are only supported on linux.");
 #endif

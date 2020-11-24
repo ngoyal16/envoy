@@ -42,10 +42,11 @@ struct StreamInfoImpl : public StreamInfo {
 
   StreamInfoImpl(Http::Protocol protocol, TimeSource& time_source,
                  FilterStateSharedPtr parent_filter_state, FilterState::LifeSpan life_span)
-      : StreamInfoImpl(protocol, time_source, std::make_shared<FilterStateImpl>(
-                                                  FilterStateImpl::LazyCreateAncestor(
-                                                      std::move(parent_filter_state), life_span),
-                                                  FilterState::LifeSpan::FilterChain)) {}
+      : StreamInfoImpl(
+            protocol, time_source,
+            std::make_shared<FilterStateImpl>(
+                FilterStateImpl::LazyCreateAncestor(std::move(parent_filter_state), life_span),
+                FilterState::LifeSpan::FilterChain)) {}
 
   SystemTime startTime() const override { return start_time_; }
 

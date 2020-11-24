@@ -412,10 +412,11 @@ ContextImpl::ContextImpl(Stats::Scope& scope, const Envoy::Ssl::ContextConfig& c
         bio.reset(BIO_new_mem_buf(const_cast<char*>(tls_certificate.privateKey().data()),
                                   tls_certificate.privateKey().size()));
         RELEASE_ASSERT(bio != nullptr, "");
-        bssl::UniquePtr<EVP_PKEY> pkey(PEM_read_bio_PrivateKey(
-            bio.get(), nullptr, nullptr, !tls_certificate.password().empty()
-                                             ? const_cast<char*>(tls_certificate.password().c_str())
-                                             : nullptr));
+        bssl::UniquePtr<EVP_PKEY> pkey(
+            PEM_read_bio_PrivateKey(bio.get(), nullptr, nullptr,
+                                    !tls_certificate.password().empty()
+                                        ? const_cast<char*>(tls_certificate.password().c_str())
+                                        : nullptr));
 
         if (pkey == nullptr || !SSL_CTX_use_PrivateKey(ctx.ssl_ctx_.get(), pkey.get())) {
           throw EnvoyException(fmt::format("Failed to load private key from {}, Cause: {}",
@@ -556,8 +557,9 @@ int ContextImpl::verifyCallback(X509_STORE_CTX* store_ctx, void* arg) {
       X509_STORE_CTX_get_ex_data(store_ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
   auto cert = bssl::UniquePtr<X509>(SSL_get_peer_certificate(ssl));
   return impl->doVerifyCertChain(
-      store_ctx, reinterpret_cast<Envoy::Ssl::SslExtendedSocketInfo*>(
-                     SSL_get_ex_data(ssl, ContextImpl::sslExtendedSocketInfoIndex())),
+      store_ctx,
+      reinterpret_cast<Envoy::Ssl::SslExtendedSocketInfo*>(
+          SSL_get_ex_data(ssl, ContextImpl::sslExtendedSocketInfoIndex())),
       *cert, static_cast<const Network::TransportSocketOptions*>(SSL_get_app_data(ssl)));
 }
 
@@ -579,10 +581,11 @@ int ContextImpl::doVerifyCertChain(
   }
 
   Envoy::Ssl::ClientValidationStatus validated = verifyCertificate(
-      &leaf_cert, transport_socket_options &&
-                          !transport_socket_options->verifySubjectAltNameListOverride().empty()
-                      ? transport_socket_options->verifySubjectAltNameListOverride()
-                      : verify_subject_alt_name_list_,
+      &leaf_cert,
+      transport_socket_options &&
+              !transport_socket_options->verifySubjectAltNameListOverride().empty()
+          ? transport_socket_options->verifySubjectAltNameListOverride()
+          : verify_subject_alt_name_list_,
       subject_alt_name_matchers_);
 
   if (ssl_extended_info) {
@@ -1066,13 +1069,13 @@ ServerContextImpl::ServerContextImpl(Stats::Scope& scope,
     }
 
     if (!parsed_alpn_protocols_.empty() && !config.capabilities().handles_alpn_selection) {
-      SSL_CTX_set_alpn_select_cb(ctx.ssl_ctx_.get(),
-                                 [](SSL*, const unsigned char** out, unsigned char* outlen,
-                                    const unsigned char* in, unsigned int inlen, void* arg) -> int {
-                                   return static_cast<ServerContextImpl*>(arg)->alpnSelectCallback(
-                                       out, outlen, in, inlen);
-                                 },
-                                 this);
+      SSL_CTX_set_alpn_select_cb(
+          ctx.ssl_ctx_.get(),
+          [](SSL*, const unsigned char** out, unsigned char* outlen, const unsigned char* in,
+             unsigned int inlen, void* arg) -> int {
+            return static_cast<ServerContextImpl*>(arg)->alpnSelectCallback(out, outlen, in, inlen);
+          },
+          this);
     }
 
     // If the handshaker handles session tickets natively, don't call
@@ -1080,16 +1083,17 @@ ServerContextImpl::ServerContextImpl(Stats::Scope& scope,
     if (config.disableStatelessSessionResumption()) {
       SSL_CTX_set_options(ctx.ssl_ctx_.get(), SSL_OP_NO_TICKET);
     } else if (!session_ticket_keys_.empty() && !config.capabilities().handles_session_resumption) {
-      SSL_CTX_set_tlsext_ticket_key_cb(ctx.ssl_ctx_.get(), [](SSL* ssl, uint8_t* key_name,
-                                                              uint8_t* iv, EVP_CIPHER_CTX* ctx,
-                                                              HMAC_CTX* hmac_ctx,
-                                                              int encrypt) -> int {
-        ContextImpl* context_impl =
-            static_cast<ContextImpl*>(SSL_CTX_get_app_data(SSL_get_SSL_CTX(ssl)));
-        ServerContextImpl* server_context_impl = dynamic_cast<ServerContextImpl*>(context_impl);
-        RELEASE_ASSERT(server_context_impl != nullptr, ""); // for Coverity
-        return server_context_impl->sessionTicketProcess(ssl, key_name, iv, ctx, hmac_ctx, encrypt);
-      });
+      SSL_CTX_set_tlsext_ticket_key_cb(
+          ctx.ssl_ctx_.get(),
+          [](SSL* ssl, uint8_t* key_name, uint8_t* iv, EVP_CIPHER_CTX* ctx, HMAC_CTX* hmac_ctx,
+             int encrypt) -> int {
+            ContextImpl* context_impl =
+                static_cast<ContextImpl*>(SSL_CTX_get_app_data(SSL_get_SSL_CTX(ssl)));
+            ServerContextImpl* server_context_impl = dynamic_cast<ServerContextImpl*>(context_impl);
+            RELEASE_ASSERT(server_context_impl != nullptr, ""); // for Coverity
+            return server_context_impl->sessionTicketProcess(ssl, key_name, iv, ctx, hmac_ctx,
+                                                             encrypt);
+          });
     }
 
     if (config.sessionTimeout() && !config.capabilities().handles_session_resumption) {

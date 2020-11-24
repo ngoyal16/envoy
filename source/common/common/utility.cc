@@ -43,7 +43,7 @@ const std::string errorDetails(int error_code) {
 #ifndef WIN32
   // clang-format off
   return strerror(error_code);
-// clang-format on
+  // clang-format on
 #else
   // Windows error codes do not correspond to POSIX errno values
   // Use FormatMessage, strip trailing newline, and return "Unknown error" on failure (as on POSIX).
@@ -507,7 +507,7 @@ std::string StringUtil::removeCharacters(const absl::string_view& str,
   const auto intervals = remove_characters.toVector();
   std::vector<absl::string_view> pieces;
   pieces.reserve(intervals.size());
-  for (const auto & [ left_bound, right_bound ] : intervals) {
+  for (const auto& [left_bound, right_bound] : intervals) {
     if (left_bound != pos) {
       ASSERT(right_bound <= str.size());
       pieces.push_back(str.substr(pos, left_bound - pos));

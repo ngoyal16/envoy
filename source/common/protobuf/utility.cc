@@ -351,8 +351,8 @@ void MessageUtil::loadFromJson(const std::string& json, Protobuf::Message& messa
     // If we still fail with relaxed unknown field checking, the error has nothing
     // to do with unknown fields.
     if (!relaxed_status.ok()) {
-      throw EnvoyException("Unable to parse JSON as proto (" + relaxed_status.ToString() + "): " +
-                           json);
+      throw EnvoyException("Unable to parse JSON as proto (" + relaxed_status.ToString() +
+                           "): " + json);
     }
     // We know it's an unknown field at this point. If we're at the latest
     // version, then it's definitely an unknown field, otherwise we try to

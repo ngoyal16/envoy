@@ -19,8 +19,8 @@ std::string SpdyServerPushUtils::GetPromisedUrlFromHeaders(const SpdyHeaderBlock
 
 // static
 std::string
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    SpdyServerPushUtils::GetPromisedHostNameFromHeaders(const SpdyHeaderBlock& /*headers*/) {
+// NOLINTNEXTLINE(readability-identifier-naming)
+SpdyServerPushUtils::GetPromisedHostNameFromHeaders(const SpdyHeaderBlock& /*headers*/) {
   NOT_IMPLEMENTED_GCOVR_EXCL_LINE;
 }
 

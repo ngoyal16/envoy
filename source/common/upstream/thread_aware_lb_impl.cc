@@ -199,8 +199,9 @@ double ThreadAwareLoadBalancerBase::BoundedLoadHashingLoadBalancer::hostOverload
 
   if (host.stats().rq_active_.value() > slots) {
     ENVOY_LOG_MISC(
-        debug, "ThreadAwareLoadBalancerBase::BoundedLoadHashingLoadBalancer::chooseHost: "
-               "host {} overloaded; overall_active {}, host_weight {}, host_active {} > slots {}",
+        debug,
+        "ThreadAwareLoadBalancerBase::BoundedLoadHashingLoadBalancer::chooseHost: "
+        "host {} overloaded; overall_active {}, host_weight {}, host_active {} > slots {}",
         host.address()->asString(), overall_active, weight, host_active, slots);
   }
   return static_cast<double>(host.stats().rq_active_.value()) / slots;

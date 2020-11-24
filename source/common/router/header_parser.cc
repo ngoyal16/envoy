@@ -280,7 +280,7 @@ void HeaderParser::evaluateHeaders(Http::HeaderMap& headers,
     headers.remove(header);
   }
 
-  for (const auto & [ key, entry ] : headers_to_add_) {
+  for (const auto& [key, entry] : headers_to_add_) {
     const std::string value =
         stream_info != nullptr ? entry.formatter_->format(*stream_info) : entry.original_value_;
     if (!value.empty()) {

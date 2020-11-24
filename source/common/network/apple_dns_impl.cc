@@ -295,8 +295,9 @@ void AppleDnsResolverImpl::PendingResolution::cancel() {
 void AppleDnsResolverImpl::PendingResolution::onDNSServiceGetAddrInfoReply(
     DNSServiceFlags flags, uint32_t interface_index, DNSServiceErrorType error_code,
     const char* hostname, const struct sockaddr* address, uint32_t ttl) {
-  ENVOY_LOG(debug, "DNS for {} resolved with: flags={}[MoreComing={}, Add={}], interface_index={}, "
-                   "error_code={}, hostname={}",
+  ENVOY_LOG(debug,
+            "DNS for {} resolved with: flags={}[MoreComing={}, Add={}], interface_index={}, "
+            "error_code={}, hostname={}",
             dns_name_, flags, flags & kDNSServiceFlagsMoreComing ? "yes" : "no",
             flags & kDNSServiceFlagsAdd ? "yes" : "no", interface_index, error_code, hostname);
   RELEASE_ASSERT(interface_index == 0,

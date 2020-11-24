@@ -261,14 +261,13 @@ bool ScopedRdsConfigSubscription::addOrUpdateScopes(
   // threads. Upon a scoped RouteConfiguration miss, if the scope exists, an on demand update
   // callback will be posted to main thread.
   if (!updated_scopes.empty()) {
-    applyConfigUpdate(
-        [updated_scopes](
-            ConfigProvider::ConfigConstSharedPtr config) -> ConfigProvider::ConfigConstSharedPtr {
-          auto* thread_local_scoped_config =
-              const_cast<ScopedConfigImpl*>(static_cast<const ScopedConfigImpl*>(config.get()));
-          thread_local_scoped_config->addOrUpdateRoutingScopes(updated_scopes);
-          return config;
-        });
+    applyConfigUpdate([updated_scopes](ConfigProvider::ConfigConstSharedPtr config)
+                          -> ConfigProvider::ConfigConstSharedPtr {
+      auto* thread_local_scoped_config =
+          const_cast<ScopedConfigImpl*>(static_cast<const ScopedConfigImpl*>(config.get()));
+      thread_local_scoped_config->addOrUpdateRoutingScopes(updated_scopes);
+      return config;
+    });
   }
   return any_applied;
 }
@@ -296,14 +295,13 @@ ScopedRdsConfigSubscription::removeScopes(
     }
   }
   if (!removed_scope_names.empty()) {
-    applyConfigUpdate(
-        [removed_scope_names](
-            ConfigProvider::ConfigConstSharedPtr config) -> ConfigProvider::ConfigConstSharedPtr {
-          auto* thread_local_scoped_config =
-              const_cast<ScopedConfigImpl*>(static_cast<const ScopedConfigImpl*>(config.get()));
-          thread_local_scoped_config->removeRoutingScopes(removed_scope_names);
-          return config;
-        });
+    applyConfigUpdate([removed_scope_names](ConfigProvider::ConfigConstSharedPtr config)
+                          -> ConfigProvider::ConfigConstSharedPtr {
+      auto* thread_local_scoped_config =
+          const_cast<ScopedConfigImpl*>(static_cast<const ScopedConfigImpl*>(config.get()));
+      thread_local_scoped_config->removeRoutingScopes(removed_scope_names);
+      return config;
+    });
   }
   return to_be_removed_rds_providers;
 }
@@ -386,14 +384,13 @@ void ScopedRdsConfigSubscription::onRdsConfigUpdate(const std::string& scope_nam
       std::make_shared<ConfigImpl>(
           rds_subscription.routeConfigUpdate()->routeConfiguration(), factory_context_,
           factory_context_.messageValidationContext().dynamicValidationVisitor(), false));
-  applyConfigUpdate(
-      [new_scoped_route_info](
-          ConfigProvider::ConfigConstSharedPtr config) -> ConfigProvider::ConfigConstSharedPtr {
-        auto* thread_local_scoped_config =
-            const_cast<ScopedConfigImpl*>(static_cast<const ScopedConfigImpl*>(config.get()));
-        thread_local_scoped_config->addOrUpdateRoutingScopes({new_scoped_route_info});
-        return config;
-      });
+  applyConfigUpdate([new_scoped_route_info](ConfigProvider::ConfigConstSharedPtr config)
+                        -> ConfigProvider::ConfigConstSharedPtr {
+    auto* thread_local_scoped_config =
+        const_cast<ScopedConfigImpl*>(static_cast<const ScopedConfigImpl*>(config.get()));
+    thread_local_scoped_config->addOrUpdateRoutingScopes({new_scoped_route_info});
+    return config;
+  });
   // The data plane may wait for the route configuration to come back.
   route_provider_by_scope_[scope_name]->runOnDemandUpdateCallback();
 }
@@ -429,7 +426,7 @@ ScopedRdsConfigSubscription::detectUpdateConflictAndCleanupRemoved(
 
   absl::flat_hash_map<uint64_t, std::string> scope_name_by_hash = scope_name_by_hash_;
   absl::erase_if(scope_name_by_hash, [&updated_or_removed_scopes](const auto& key_name) {
-    auto const & [ key, name ] = key_name;
+    auto const& [key, name] = key_name;
     UNREFERENCED_PARAMETER(key);
     return updated_or_removed_scopes.contains(name);
   });
@@ -547,10 +544,10 @@ ConfigProviderPtr ScopedRoutesConfigProviderManager::createXdsConfigProvider(
   ScopedRdsConfigSubscriptionSharedPtr subscription =
       ConfigProviderManagerImplBase::getSubscription<ScopedRdsConfigSubscription>(
           config_source_proto, init_manager,
-          [&config_source_proto, &factory_context, &stat_prefix, &typed_optarg](
-              const uint64_t manager_identifier,
-              ConfigProviderManagerImplBase&
-                  config_provider_manager) -> Envoy::Config::ConfigSubscriptionCommonBaseSharedPtr {
+          [&config_source_proto, &factory_context, &stat_prefix,
+           &typed_optarg](const uint64_t manager_identifier,
+                          ConfigProviderManagerImplBase& config_provider_manager)
+              -> Envoy::Config::ConfigSubscriptionCommonBaseSharedPtr {
             const auto& scoped_rds_config_source = dynamic_cast<
                 const envoy::extensions::filters::network::http_connection_manager::v3::ScopedRds&>(
                 config_source_proto);

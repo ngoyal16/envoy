@@ -281,7 +281,7 @@ public:
 
   // CEL evaluation
   std::vector<const google::api::expr::runtime::CelFunction*>
-      FindFunctionOverloads(absl::string_view) const override {
+  FindFunctionOverloads(absl::string_view) const override {
     return {};
   }
   absl::optional<google::api::expr::runtime::CelValue>

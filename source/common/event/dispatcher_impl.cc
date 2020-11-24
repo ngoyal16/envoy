@@ -157,12 +157,13 @@ Network::DnsResolverSharedPtr DispatcherImpl::createDnsResolver(
 FileEventPtr DispatcherImpl::createFileEvent(os_fd_t fd, FileReadyCb cb, FileTriggerType trigger,
                                              uint32_t events) {
   ASSERT(isThreadSafe());
-  return FileEventPtr{new FileEventImpl(*this, fd,
-                                        [this, cb](uint32_t events) {
-                                          touchWatchdog();
-                                          cb(events);
-                                        },
-                                        trigger, events)};
+  return FileEventPtr{new FileEventImpl(
+      *this, fd,
+      [this, cb](uint32_t events) {
+        touchWatchdog();
+        cb(events);
+      },
+      trigger, events)};
 }
 
 Filesystem::WatcherPtr DispatcherImpl::createFilesystemWatcher() {

@@ -78,7 +78,7 @@ void WorkerImpl::removeFilterChains(uint64_t listener_tag,
                                     std::function<void()> completion) {
   ASSERT(thread_);
   dispatcher_->post(
-      [ this, listener_tag, &filter_chains, completion = std::move(completion) ]()->void {
+      [this, listener_tag, &filter_chains, completion = std::move(completion)]() -> void {
         handler_->removeFilterChains(listener_tag, filter_chains, completion);
       });
 }

@@ -31,8 +31,10 @@ Http::Code StatsHandler::handlerStatsRecentLookups(absl::string_view, Http::Resp
                                                    Buffer::Instance& response, AdminStream&) {
   Stats::SymbolTable& symbol_table = server_.stats().symbolTable();
   std::string table;
-  const uint64_t total = symbol_table.getRecentLookups([&table](
-      absl::string_view name, uint64_t count) { table += fmt::format("{:8d} {}\n", count, name); });
+  const uint64_t total =
+      symbol_table.getRecentLookups([&table](absl::string_view name, uint64_t count) {
+        table += fmt::format("{:8d} {}\n", count, name);
+      });
   if (table.empty() && symbol_table.recentLookupCapacity() == 0) {
     table = "Lookup tracking is not enabled. Use /stats/recentlookups/enable to enable.\n";
   } else {
