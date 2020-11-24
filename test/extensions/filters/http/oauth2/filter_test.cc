@@ -35,7 +35,6 @@ static const std::string TEST_CALLBACK = "/_oauth";
 static const std::string TEST_CLIENT_ID = "1";
 static const std::string TEST_CLIENT_SECRET_ID = "MyClientSecretKnoxID";
 static const std::string TEST_TOKEN_SECRET_ID = "MyTokenSecretKnoxID";
-static const std::vector<std::string> TEST_AUTH_SCOPES = {"user", "openid", "email"};
 static const std::string TEST_ENCODED_AUTH_SCOPES = "user%20openid%20email";
 
     namespace {
@@ -93,7 +92,9 @@ public:
     p.set_authorization_endpoint("https://auth.example.com/oauth/authorize/");
     p.mutable_signout_path()->mutable_path()->set_exact("/_signout");
     p.set_forward_bearer_token(true);
-    p.set_auth_scopes(TEST_AUTH_SCOPES);
+    p.add_auth_scopes("user");
+    p.add_auth_scopes("openid");
+    p.add_auth_scopes("email");
     auto* matcher = p.add_pass_through_matcher();
     matcher->set_name(":method");
     matcher->set_exact_match("OPTIONS");
