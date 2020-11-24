@@ -73,9 +73,10 @@ void DetectorHostMonitorImpl::putHttpResponseCode(uint64_t response_code) {
       return;
     }
     if (Http::CodeUtility::isGatewayError(response_code)) {
-      if (++consecutive_gateway_failure_ == detector->runtime().snapshot().getInteger(
-                                                "outlier_detection.consecutive_gateway_failure",
-                                                detector->config().consecutiveGatewayFailure())) {
+      if (++consecutive_gateway_failure_ ==
+          detector->runtime().snapshot().getInteger(
+              "outlier_detection.consecutive_gateway_failure",
+              detector->config().consecutiveGatewayFailure())) {
         detector->onConsecutiveGatewayFailure(host_.lock());
       }
     } else {
@@ -111,11 +112,11 @@ absl::optional<Http::Code> DetectorHostMonitorImpl::resultToHttpCode(Result resu
   case Result::ExtOriginRequestFailed:
     http_code = Http::Code::InternalServerError;
     break;
-    // LOCAL_ORIGIN_CONNECT_SUCCESS  is used is 2-layer protocols, like HTTP.
-    // First connection is established and then higher level protocol runs.
-    // If error happens in higher layer protocol, it will be mapped to
-    // HTTP code indicating error. In order not to intervene with result of
-    // higher layer protocol, this code is not mapped to HTTP code.
+  // LOCAL_ORIGIN_CONNECT_SUCCESS  is used is 2-layer protocols, like HTTP.
+  // First connection is established and then higher level protocol runs.
+  // If error happens in higher layer protocol, it will be mapped to
+  // HTTP code indicating error. In order not to intervene with result of
+  // higher layer protocol, this code is not mapped to HTTP code.
   case Result::LocalOriginConnectSuccess:
     return absl::nullopt;
   }

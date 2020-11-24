@@ -50,7 +50,7 @@ const std::regex& getStartTimeNewlinePattern() {
 const std::regex& getNewlinePattern() { CONSTRUCT_ON_FIRST_USE(std::regex, "\n"); }
 
 template <class... Ts> struct JsonFormatMapVisitor : Ts... { using Ts::operator()...; };
-template <class... Ts> JsonFormatMapVisitor(Ts...) -> JsonFormatMapVisitor<Ts...>;
+template <class... Ts> JsonFormatMapVisitor(Ts...)->JsonFormatMapVisitor<Ts...>;
 
 } // namespace
 
@@ -613,10 +613,8 @@ StreamInfoFormatter::StreamInfoFormatter(const std::string& field_name) {
           return stream_info.responseCode().value_or(0);
         });
   } else if (field_name == "RESPONSE_CODE_DETAILS") {
-    field_extractor_ = std::make_unique<StreamInfoStringFieldExtractor>(
-        [](const StreamInfo::StreamInfo& stream_info) {
-          return stream_info.responseCodeDetails();
-        });
+    field_extractor_ = std::make_unique<StreamInfoStringFieldExtractor>([](
+        const StreamInfo::StreamInfo& stream_info) { return stream_info.responseCodeDetails(); });
   } else if (field_name == "CONNECTION_TERMINATION_DETAILS") {
     field_extractor_ = std::make_unique<StreamInfoStringFieldExtractor>(
         [](const StreamInfo::StreamInfo& stream_info) {
@@ -651,10 +649,8 @@ StreamInfoFormatter::StreamInfoFormatter(const std::string& field_name) {
                      : absl::make_optional<std::string>(upstream_cluster_name);
         });
   } else if (field_name == "UPSTREAM_LOCAL_ADDRESS") {
-    field_extractor_ =
-        StreamInfoAddressFieldExtractor::withPort([](const StreamInfo::StreamInfo& stream_info) {
-          return stream_info.upstreamLocalAddress();
-        });
+    field_extractor_ = StreamInfoAddressFieldExtractor::withPort([](
+        const StreamInfo::StreamInfo& stream_info) { return stream_info.upstreamLocalAddress(); });
   } else if (field_name == "DOWNSTREAM_LOCAL_ADDRESS") {
     field_extractor_ =
         StreamInfoAddressFieldExtractor::withPort([](const StreamInfo::StreamInfo& stream_info) {

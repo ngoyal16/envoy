@@ -102,7 +102,7 @@ void ClustersHandler::writeClustersAsJson(Buffer::Instance& response) {
   envoy::admin::v3::Clusters clusters;
   // TODO(mattklein123): Add ability to see warming clusters in admin output.
   auto all_clusters = server_.clusterManager().clusters();
-  for (const auto& [name, cluster_ref] : all_clusters.active_clusters_) {
+  for (const auto & [ name, cluster_ref ] : all_clusters.active_clusters_) {
     const Upstream::Cluster& cluster = cluster_ref.get();
     Upstream::ClusterInfoConstSharedPtr cluster_info = cluster.info();
 
@@ -142,14 +142,14 @@ void ClustersHandler::writeClustersAsJson(Buffer::Instance& response) {
         host_status.set_hostname(host->hostname());
         host_status.mutable_locality()->MergeFrom(host->locality());
 
-        for (const auto& [counter_name, counter] : host->counters()) {
+        for (const auto & [ counter_name, counter ] : host->counters()) {
           auto& metric = *host_status.add_stats();
           metric.set_name(std::string(counter_name));
           metric.set_value(counter.get().value());
           metric.set_type(envoy::admin::v3::SimpleMetric::COUNTER);
         }
 
-        for (const auto& [gauge_name, gauge] : host->gauges()) {
+        for (const auto & [ gauge_name, gauge ] : host->gauges()) {
           auto& metric = *host_status.add_stats();
           metric.set_name(std::string(gauge_name));
           metric.set_value(gauge.get().value());
@@ -188,7 +188,7 @@ void ClustersHandler::writeClustersAsJson(Buffer::Instance& response) {
 void ClustersHandler::writeClustersAsText(Buffer::Instance& response) {
   // TODO(mattklein123): Add ability to see warming clusters in admin output.
   auto all_clusters = server_.clusterManager().clusters();
-  for (const auto& [name, cluster_ref] : all_clusters.active_clusters_) {
+  for (const auto & [ name, cluster_ref ] : all_clusters.active_clusters_) {
     const Upstream::Cluster& cluster = cluster_ref.get();
     const std::string& cluster_name = cluster.info()->name();
     addOutlierInfo(cluster_name, cluster.outlierDetector(), response);
@@ -206,15 +206,15 @@ void ClustersHandler::writeClustersAsText(Buffer::Instance& response) {
       for (auto& host : host_set->hosts()) {
         const std::string& host_address = host->address()->asString();
         std::map<absl::string_view, uint64_t> all_stats;
-        for (const auto& [counter_name, counter] : host->counters()) {
+        for (const auto & [ counter_name, counter ] : host->counters()) {
           all_stats[counter_name] = counter.get().value();
         }
 
-        for (const auto& [gauge_name, gauge] : host->gauges()) {
+        for (const auto & [ gauge_name, gauge ] : host->gauges()) {
           all_stats[gauge_name] = gauge.get().value();
         }
 
-        for (const auto& [stat_name, stat] : all_stats) {
+        for (const auto & [ stat_name, stat ] : all_stats) {
           response.add(
               fmt::format("{}::{}::{}::{}\n", cluster_name, host_address, stat_name, stat));
         }

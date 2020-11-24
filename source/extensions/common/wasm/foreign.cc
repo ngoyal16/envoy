@@ -25,9 +25,8 @@ template <typename T> WasmForeignFunction createFromClass() {
 }
 
 RegisterForeignFunction registerCompressForeignFunction(
-    "compress",
-    [](WasmBase&, absl::string_view arguments,
-       const std::function<void*(size_t size)>& alloc_result) -> WasmResult {
+    "compress", [](WasmBase&, absl::string_view arguments,
+                   const std::function<void*(size_t size)>& alloc_result) -> WasmResult {
       unsigned long dest_len = compressBound(arguments.size());
       std::unique_ptr<unsigned char[]> b(new unsigned char[dest_len]);
       if (compress(b.get(), &dest_len, reinterpret_cast<const unsigned char*>(arguments.data()),
@@ -40,9 +39,8 @@ RegisterForeignFunction registerCompressForeignFunction(
     });
 
 RegisterForeignFunction registerUncompressForeignFunction(
-    "uncompress",
-    [](WasmBase&, absl::string_view arguments,
-       const std::function<void*(size_t size)>& alloc_result) -> WasmResult {
+    "uncompress", [](WasmBase&, absl::string_view arguments,
+                     const std::function<void*(size_t size)>& alloc_result) -> WasmResult {
       unsigned long dest_len = arguments.size() * 2 + 2; // output estimate.
       while (true) {
         std::unique_ptr<unsigned char[]> b(new unsigned char[dest_len]);

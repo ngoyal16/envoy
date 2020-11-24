@@ -216,8 +216,9 @@ void RateLimitPolicyEntryImpl::populateDescriptors(
   RateLimit::Descriptor descriptor;
   bool result = true;
   for (const RateLimitActionPtr& action : actions_) {
-    result = result && action->populateDescriptor(route, descriptor, local_service_cluster, headers,
-                                                  remote_address, dynamic_metadata);
+    result = result &&
+             action->populateDescriptor(route, descriptor, local_service_cluster, headers,
+                                        remote_address, dynamic_metadata);
     if (!result) {
       break;
     }

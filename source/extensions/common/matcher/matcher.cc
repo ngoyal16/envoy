@@ -178,8 +178,9 @@ void HttpGenericBodyMatcher::onBody(const Buffer::Instance& data, MatchStatusVec
   while (it != ctx->patterns_index_.end()) {
     const auto& pattern = patterns_->at(*it);
     if ((!ctx->overlap_.empty() && (locatePatternAcrossChunks(pattern, data, ctx))) ||
-        (-1 != data.search(static_cast<const void*>(pattern.data()), pattern.length(), 0,
-                           body_search_limit))) {
+        (-1 !=
+         data.search(static_cast<const void*>(pattern.data()), pattern.length(), 0,
+                     body_search_limit))) {
       // Pattern found. Remove it from the list of patterns to be found.
       // If the longest pattern has been found, resize of overlap buffer may be
       // required.

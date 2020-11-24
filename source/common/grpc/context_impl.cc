@@ -39,9 +39,9 @@ void ContextImpl::chargeStat(const Upstream::ClusterInfo& cluster, Protocol prot
   absl::string_view status_str = grpc_status->value().getStringView();
   auto iter = stat_names_.status_names_.find(status_str);
   Stats::ElementVec elements =
-      statElements(protocol, request_names,
-                   (iter != stat_names_.status_names_.end()) ? Stats::Element(iter->second)
-                                                             : Stats::DynamicName(status_str));
+      statElements(protocol, request_names, (iter != stat_names_.status_names_.end())
+                                                ? Stats::Element(iter->second)
+                                                : Stats::DynamicName(status_str));
   Stats::Utility::counterFromElements(cluster.statsScope(), elements).inc();
   chargeStat(cluster, protocol, request_names, (status_str == "0"));
 }

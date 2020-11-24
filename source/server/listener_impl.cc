@@ -285,9 +285,8 @@ ListenerImpl::ListenerImpl(const envoy::config::listener::v3::Listener& config,
   const absl::optional<std::string> runtime_val =
       listener_factory_context_->runtime().snapshot().get(cx_limit_runtime_key_);
   if (runtime_val && runtime_val->empty()) {
-    ENVOY_LOG(warn,
-              "Listener connection limit runtime key {} is empty. There are currently no "
-              "limitations on the number of accepted connections for listener {}.",
+    ENVOY_LOG(warn, "Listener connection limit runtime key {} is empty. There are currently no "
+                    "limitations on the number of accepted connections for listener {}.",
               cx_limit_runtime_key_, config_.name());
   }
 

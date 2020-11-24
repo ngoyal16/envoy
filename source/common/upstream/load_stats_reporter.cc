@@ -14,8 +14,8 @@ LoadStatsReporter::LoadStatsReporter(const LocalInfo::LocalInfo& local_info,
                                      Grpc::RawAsyncClientPtr async_client,
                                      envoy::config::core::v3::ApiVersion transport_api_version,
                                      Event::Dispatcher& dispatcher)
-    : cm_(cluster_manager), stats_{ALL_LOAD_REPORTER_STATS(
-                                POOL_COUNTER_PREFIX(scope, "load_reporter."))},
+    : cm_(cluster_manager),
+      stats_{ALL_LOAD_REPORTER_STATS(POOL_COUNTER_PREFIX(scope, "load_reporter."))},
       async_client_(std::move(async_client)), transport_api_version_(transport_api_version),
       service_method_(
           Grpc::VersionedMethods("envoy.service.load_stats.v3.LoadReportingService.StreamLoadStats",

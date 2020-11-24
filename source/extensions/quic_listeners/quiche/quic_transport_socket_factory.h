@@ -20,7 +20,7 @@ class QuicTransportSocketFactoryBase : public Network::TransportSocketFactory {
 public:
   // Network::TransportSocketFactory
   Network::TransportSocketPtr
-  createTransportSocket(Network::TransportSocketOptionsSharedPtr /*options*/) const override {
+      createTransportSocket(Network::TransportSocketOptionsSharedPtr /*options*/) const override {
     NOT_REACHED_GCOVR_EXCL_LINE;
   }
   bool implementsSecureTransport() const override { return true; }

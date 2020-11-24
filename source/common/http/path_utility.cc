@@ -37,7 +37,7 @@ bool PathUtil::canonicalPath(RequestHeaderMap& headers) {
       query_pos == original_path.npos
           ? original_path
           : absl::string_view(original_path.data(), query_pos) // '?' is not included
-  );
+      );
 
   if (!normalized_path_opt.has_value()) {
     return false;

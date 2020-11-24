@@ -23,10 +23,11 @@ FileEventImpl::FileEventImpl(DispatcherImpl& dispatcher, os_fd_t fd, FileReadyCb
 #ifdef WIN32
   ASSERT(trigger_ != FileTriggerType::Edge, "libevent does not support edge triggers on Windows");
 #endif
-  if constexpr (PlatformDefaultTriggerType != FileTriggerType::EmulatedEdge) {
-    ASSERT(trigger_ != FileTriggerType::EmulatedEdge,
-           "Cannot use EmulatedEdge events if they are not the default platform type");
-  }
+  if
+    constexpr(PlatformDefaultTriggerType != FileTriggerType::EmulatedEdge) {
+      ASSERT(trigger_ != FileTriggerType::EmulatedEdge,
+             "Cannot use EmulatedEdge events if they are not the default platform type");
+    }
 
   assignEvents(events, &dispatcher.base());
   event_add(&raw_event_, nullptr);
@@ -53,31 +54,30 @@ void FileEventImpl::activate(uint32_t events) {
 void FileEventImpl::assignEvents(uint32_t events, event_base* base) {
   ASSERT(base != nullptr);
   enabled_events_ = events;
-  event_assign(
-      &raw_event_, base, fd_,
-      EV_PERSIST | (trigger_ == FileTriggerType::Edge ? EV_ET : 0) |
-          (events & FileReadyType::Read ? EV_READ : 0) |
-          (events & FileReadyType::Write ? EV_WRITE : 0) |
-          (events & FileReadyType::Closed ? EV_CLOSED : 0),
-      [](evutil_socket_t, short what, void* arg) -> void {
-        auto* event = static_cast<FileEventImpl*>(arg);
-        uint32_t events = 0;
-        if (what & EV_READ) {
-          events |= FileReadyType::Read;
-        }
+  event_assign(&raw_event_, base, fd_,
+               EV_PERSIST | (trigger_ == FileTriggerType::Edge ? EV_ET : 0) |
+                   (events & FileReadyType::Read ? EV_READ : 0) |
+                   (events & FileReadyType::Write ? EV_WRITE : 0) |
+                   (events & FileReadyType::Closed ? EV_CLOSED : 0),
+               [](evutil_socket_t, short what, void* arg) -> void {
+                 auto* event = static_cast<FileEventImpl*>(arg);
+                 uint32_t events = 0;
+                 if (what & EV_READ) {
+                   events |= FileReadyType::Read;
+                 }
 
-        if (what & EV_WRITE) {
-          events |= FileReadyType::Write;
-        }
+                 if (what & EV_WRITE) {
+                   events |= FileReadyType::Write;
+                 }
 
-        if (what & EV_CLOSED) {
-          events |= FileReadyType::Closed;
-        }
+                 if (what & EV_CLOSED) {
+                   events |= FileReadyType::Closed;
+                 }
 
-        ASSERT(events != 0);
-        event->mergeInjectedEventsAndRunCb(events);
-      },
-      this);
+                 ASSERT(events != 0);
+                 event->mergeInjectedEventsAndRunCb(events);
+               },
+               this);
 }
 
 void FileEventImpl::updateEvents(uint32_t events) {
@@ -104,41 +104,44 @@ void FileEventImpl::setEnabled(uint32_t events) {
 
 void FileEventImpl::unregisterEventIfEmulatedEdge(uint32_t event) {
   // This constexpr if allows the compiler to optimize away the function on POSIX
-  if constexpr (PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
-    ASSERT((event & (FileReadyType::Read | FileReadyType::Write)) == event);
-    if (trigger_ == FileTriggerType::EmulatedEdge) {
-      auto new_event_mask = enabled_events_ & ~event;
-      updateEvents(new_event_mask);
+  if
+    constexpr(PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
+      ASSERT((event & (FileReadyType::Read | FileReadyType::Write)) == event);
+      if (trigger_ == FileTriggerType::EmulatedEdge) {
+        auto new_event_mask = enabled_events_ & ~event;
+        updateEvents(new_event_mask);
+      }
     }
-  }
 }
 
 void FileEventImpl::registerEventIfEmulatedEdge(uint32_t event) {
   // This constexpr if allows the compiler to optimize away the function on POSIX
-  if constexpr (PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
-    ASSERT((event & (FileReadyType::Read | FileReadyType::Write)) == event);
-    if (trigger_ == FileTriggerType::EmulatedEdge) {
-      auto new_event_mask = enabled_events_ | event;
-      if (event & FileReadyType::Read && (enabled_events_ & FileReadyType::Closed)) {
-        // We never ask for both early close and read at the same time.
-        new_event_mask = new_event_mask & ~FileReadyType::Read;
+  if
+    constexpr(PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
+      ASSERT((event & (FileReadyType::Read | FileReadyType::Write)) == event);
+      if (trigger_ == FileTriggerType::EmulatedEdge) {
+        auto new_event_mask = enabled_events_ | event;
+        if (event & FileReadyType::Read && (enabled_events_ & FileReadyType::Closed)) {
+          // We never ask for both early close and read at the same time.
+          new_event_mask = new_event_mask & ~FileReadyType::Read;
+        }
+        updateEvents(new_event_mask);
       }
-      updateEvents(new_event_mask);
     }
-  }
 }
 
 void FileEventImpl::mergeInjectedEventsAndRunCb(uint32_t events) {
   if (injected_activation_events_ != 0) {
     // TODO(antoniovicente) remove this adjustment to activation events once ConnectionImpl can
     // handle Read and Close events delivered together.
-    if constexpr (PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
-      if (events & FileReadyType::Closed && injected_activation_events_ & FileReadyType::Read) {
-        // We never ask for both early close and read at the same time. If close is requested
-        // keep that instead.
-        injected_activation_events_ = injected_activation_events_ & ~FileReadyType::Read;
+    if
+      constexpr(PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
+        if (events & FileReadyType::Closed && injected_activation_events_ & FileReadyType::Read) {
+          // We never ask for both early close and read at the same time. If close is requested
+          // keep that instead.
+          injected_activation_events_ = injected_activation_events_ & ~FileReadyType::Read;
+        }
       }
-    }
 
     events |= injected_activation_events_;
     injected_activation_events_ = 0;
@@ -148,12 +151,13 @@ void FileEventImpl::mergeInjectedEventsAndRunCb(uint32_t events) {
   // TODO(davinci26): This can be optimized further in (w)epoll backends using the `EPOLLONESHOT`
   // flag. With this flag `EPOLLIN`/`EPOLLOUT` are automatically disabled when the event is
   // activated.
-  if constexpr (PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
-    if (trigger_ == FileTriggerType::EmulatedEdge) {
-      unregisterEventIfEmulatedEdge(events &
-                                    (Event::FileReadyType::Write | Event::FileReadyType::Read));
+  if
+    constexpr(PlatformDefaultTriggerType == FileTriggerType::EmulatedEdge) {
+      if (trigger_ == FileTriggerType::EmulatedEdge) {
+        unregisterEventIfEmulatedEdge(events &
+                                      (Event::FileReadyType::Write | Event::FileReadyType::Read));
+      }
     }
-  }
 
   cb_(events);
 }

@@ -151,7 +151,7 @@ Network::IoResult SslSocket::doRead(Buffer::Instance& read_buffer) {
           }
           FALLTHRU;
         case SSL_ERROR_WANT_WRITE:
-          // Renegotiation has started. We don't handle renegotiation so just fall through.
+        // Renegotiation has started. We don't handle renegotiation so just fall through.
         default:
           drainErrorQueue();
           action = PostIoAction::Close;
@@ -293,17 +293,18 @@ void SslSocket::shutdownSsl() {
   if (info_->state() != Ssl::SocketState::ShutdownSent &&
       callbacks_->connection().state() != Network::Connection::State::Closed) {
     int rc = SSL_shutdown(rawSsl());
-    if constexpr (Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
-      // Windows operate under `EmulatedEdge`. These are level events that are artificially
-      // made to behave like edge events. And if the rc is 0 then in that case we want read
-      // activation resumption. This code is protected with an `constexpr` if, to minimize the tax
-      // on POSIX systems that operate in Edge events.
-      if (rc == 0) {
-        // See https://www.openssl.org/docs/manmaster/man3/SSL_shutdown.html
-        // if return value is 0,  Call SSL_read() to do a bidirectional shutdown.
-        callbacks_->setReadBufferReady();
+    if
+      constexpr(Event::PlatformDefaultTriggerType == Event::FileTriggerType::EmulatedEdge) {
+        // Windows operate under `EmulatedEdge`. These are level events that are artificially
+        // made to behave like edge events. And if the rc is 0 then in that case we want read
+        // activation resumption. This code is protected with an `constexpr` if, to minimize the tax
+        // on POSIX systems that operate in Edge events.
+        if (rc == 0) {
+          // See https://www.openssl.org/docs/manmaster/man3/SSL_shutdown.html
+          // if return value is 0,  Call SSL_read() to do a bidirectional shutdown.
+          callbacks_->setReadBufferReady();
+        }
       }
-    }
     ENVOY_CONN_LOG(debug, "SSL shutdown: rc={}", callbacks_->connection(), rc);
     drainErrorQueue();
     info_->setState(Ssl::SocketState::ShutdownSent);
@@ -405,7 +406,7 @@ ServerSslSocketFactory::ServerSslSocketFactory(Envoy::Ssl::ServerContextConfigPt
 }
 
 Network::TransportSocketPtr
-ServerSslSocketFactory::createTransportSocket(Network::TransportSocketOptionsSharedPtr) const {
+    ServerSslSocketFactory::createTransportSocket(Network::TransportSocketOptionsSharedPtr) const {
   // onAddOrUpdateSecret() could be invoked in the middle of checking the existence of ssl_ctx and
   // creating SslSocket using ssl_ctx. Capture ssl_ctx_ into a local variable so that we check and
   // use the same ssl_ctx to create SslSocket.

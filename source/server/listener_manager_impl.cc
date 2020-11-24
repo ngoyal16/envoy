@@ -312,7 +312,7 @@ ProtobufTypes::MessagePtr ListenerManagerImpl::dumpListenerConfigs() {
     fillState(*dump_listener, *listener);
   }
 
-  for (const auto& [error_name, error_state] : error_state_tracker_) {
+  for (const auto & [ error_name, error_state ] : error_state_tracker_) {
     DynamicListener* dynamic_listener =
         getOrCreateDynamicListener(error_name, *config_dump, listener_map);
 
@@ -579,30 +579,29 @@ void ListenerManagerImpl::drainListener(ListenerImplPtr&& listener) {
   // Tell all workers to stop accepting new connections on this listener.
   draining_it->listener_->debugLog("draining listener");
   const uint64_t listener_tag = draining_it->listener_->listenerTag();
-  stopListener(
-      *draining_it->listener_,
-      [this,
-       share_socket = draining_it->listener_->listenSocketFactory().sharedSocket().has_value(),
-       listener_tag]() {
-        if (!share_socket) {
-          // Each listener has its individual socket and closes the socket on its own.
-          return;
+  stopListener(*draining_it->listener_, [
+    this, share_socket = draining_it->listener_->listenSocketFactory().sharedSocket().has_value(),
+    listener_tag
+  ]() {
+    if (!share_socket) {
+      // Each listener has its individual socket and closes the socket on its own.
+      return;
+    }
+    for (auto& listener : draining_listeners_) {
+      if (listener.listener_->listenerTag() == listener_tag) {
+        // Handle the edge case when new listener is added for the same address as the drained
+        // one. In this case the socket is shared between both listeners so one should avoid
+        // closing it.
+        const auto& socket_factory = listener.listener_->getSocketFactory();
+        if (!shareSocketWithOtherListener(active_listeners_, socket_factory) &&
+            !shareSocketWithOtherListener(warming_listeners_, socket_factory)) {
+          // Close the socket iff it is not used anymore.
+          ASSERT(listener.listener_->listenSocketFactory().sharedSocket().has_value());
+          listener.listener_->listenSocketFactory().sharedSocket()->get().close();
         }
-        for (auto& listener : draining_listeners_) {
-          if (listener.listener_->listenerTag() == listener_tag) {
-            // Handle the edge case when new listener is added for the same address as the drained
-            // one. In this case the socket is shared between both listeners so one should avoid
-            // closing it.
-            const auto& socket_factory = listener.listener_->getSocketFactory();
-            if (!shareSocketWithOtherListener(active_listeners_, socket_factory) &&
-                !shareSocketWithOtherListener(warming_listeners_, socket_factory)) {
-              // Close the socket iff it is not used anymore.
-              ASSERT(listener.listener_->listenSocketFactory().sharedSocket().has_value());
-              listener.listener_->listenSocketFactory().sharedSocket()->get().close();
-            }
-          }
-        }
-      });
+      }
+    }
+  });
 
   // Start the drain sequence which completes when the listener's drain manager has completed
   // draining at whatever the server configured drain times are.
@@ -943,21 +942,21 @@ void ListenerManagerImpl::stopListeners(StopListenersType stop_listeners_type) {
       // Close the socket once all workers stopped accepting its connections.
       // This allows clients to fast fail instead of waiting in the accept queue.
       const uint64_t listener_tag = listener.listenerTag();
-      stopListener(listener,
-                   [this, share_socket = listener.listenSocketFactory().sharedSocket().has_value(),
-                    listener_tag]() {
-                     stats_.listener_stopped_.inc();
-                     if (!share_socket) {
-                       // Each listener has its own socket and closes the socket
-                       // on its own.
-                       return;
-                     }
-                     for (auto& listener : active_listeners_) {
-                       if (listener->listenerTag() == listener_tag) {
-                         listener->listenSocketFactory().sharedSocket()->get().close();
-                       }
-                     }
-                   });
+      stopListener(listener, [
+        this, share_socket = listener.listenSocketFactory().sharedSocket().has_value(), listener_tag
+      ]() {
+        stats_.listener_stopped_.inc();
+        if (!share_socket) {
+          // Each listener has its own socket and closes the socket
+          // on its own.
+          return;
+        }
+        for (auto& listener : active_listeners_) {
+          if (listener->listenerTag() == listener_tag) {
+            listener->listenSocketFactory().sharedSocket()->get().close();
+          }
+        }
+      });
     }
   }
 }

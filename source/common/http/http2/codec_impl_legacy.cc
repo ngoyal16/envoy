@@ -1189,9 +1189,8 @@ ConnectionImpl::Http2Callbacks::Http2Callbacks() {
       });
 
   nghttp2_session_callbacks_set_send_data_callback(
-      callbacks_,
-      [](nghttp2_session*, nghttp2_frame* frame, const uint8_t* framehd, size_t length,
-         nghttp2_data_source* source, void*) -> int {
+      callbacks_, [](nghttp2_session*, nghttp2_frame* frame, const uint8_t* framehd, size_t length,
+                     nghttp2_data_source* source, void*) -> int {
         ASSERT(frame->data.padlen == 0);
         return static_cast<StreamImpl*>(source->ptr)->onDataSourceSend(framehd, length);
       });
@@ -1215,9 +1214,8 @@ ConnectionImpl::Http2Callbacks::Http2Callbacks() {
       });
 
   nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
-      callbacks_,
-      [](nghttp2_session*, uint8_t, int32_t stream_id, const uint8_t* data, size_t len,
-         void* user_data) -> int {
+      callbacks_, [](nghttp2_session*, uint8_t, int32_t stream_id, const uint8_t* data, size_t len,
+                     void* user_data) -> int {
         return static_cast<ConnectionImpl*>(user_data)->onData(stream_id, data, len);
       });
 
@@ -1262,9 +1260,8 @@ ConnectionImpl::Http2Callbacks::Http2Callbacks() {
       });
 
   nghttp2_session_callbacks_set_on_extension_chunk_recv_callback(
-      callbacks_,
-      [](nghttp2_session*, const nghttp2_frame_hd* hd, const uint8_t* data, size_t len,
-         void* user_data) -> int {
+      callbacks_, [](nghttp2_session*, const nghttp2_frame_hd* hd, const uint8_t* data, size_t len,
+                     void* user_data) -> int {
         ASSERT(hd->length >= len);
         return static_cast<ConnectionImpl*>(user_data)->onMetadataReceived(hd->stream_id, data,
                                                                            len);
@@ -1277,9 +1274,8 @@ ConnectionImpl::Http2Callbacks::Http2Callbacks() {
       });
 
   nghttp2_session_callbacks_set_pack_extension_callback(
-      callbacks_,
-      [](nghttp2_session*, uint8_t* buf, size_t len, const nghttp2_frame* frame,
-         void* user_data) -> ssize_t {
+      callbacks_, [](nghttp2_session*, uint8_t* buf, size_t len, const nghttp2_frame* frame,
+                     void* user_data) -> ssize_t {
         ASSERT(frame->hd.length <= len);
         return static_cast<ConnectionImpl*>(user_data)->packMetadata(frame->hd.stream_id, buf, len);
       });

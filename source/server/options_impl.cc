@@ -74,9 +74,8 @@ OptionsImpl::OptionsImpl(std::vector<std::string> args,
       "", "config-yaml", "Inline YAML configuration, merges with the contents of --config-path",
       false, "", "string", cmd);
   TCLAP::ValueArg<uint32_t> bootstrap_version(
-      "", "bootstrap-version",
-      "API version to parse the bootstrap config as (e.g. 3). If "
-      "unset, all known versions will be attempted",
+      "", "bootstrap-version", "API version to parse the bootstrap config as (e.g. 3). If "
+                               "unset, all known versions will be attempted",
       false, 0, "string", cmd);
 
   TCLAP::SwitchArg allow_unknown_fields("", "allow-unknown-fields",

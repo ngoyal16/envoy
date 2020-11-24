@@ -19,14 +19,16 @@ SkyWalkingClientConfig::SkyWalkingClientConfig(Server::Configuration::TracerFact
     : factory_context_(context.serverFactoryContext()),
       max_cache_size_(PROTOBUF_GET_WRAPPED_OR_DEFAULT(config, max_cache_size,
                                                       DEFAULT_DELAYED_SEGMENTS_CACHE_SIZE)),
-      service_(config.service_name().empty() ? factory_context_.localInfo().clusterName().empty()
-                                                   ? DEFAULT_SERVICE_AND_INSTANCE
-                                                   : factory_context_.localInfo().clusterName()
-                                             : config.service_name()),
-      instance_(config.instance_name().empty() ? factory_context_.localInfo().nodeName().empty()
-                                                     ? DEFAULT_SERVICE_AND_INSTANCE
-                                                     : factory_context_.localInfo().nodeName()
-                                               : config.instance_name()) {
+      service_(config.service_name().empty()
+                   ? factory_context_.localInfo().clusterName().empty()
+                         ? DEFAULT_SERVICE_AND_INSTANCE
+                         : factory_context_.localInfo().clusterName()
+                   : config.service_name()),
+      instance_(config.instance_name().empty()
+                    ? factory_context_.localInfo().nodeName().empty()
+                          ? DEFAULT_SERVICE_AND_INSTANCE
+                          : factory_context_.localInfo().nodeName()
+                    : config.instance_name()) {
   // Since the SDS API to get backend token is not supported yet, we can get the value of token
   // from the backend_token field directly. If the user does not provide the configuration, the
   // value of token is kept empty.

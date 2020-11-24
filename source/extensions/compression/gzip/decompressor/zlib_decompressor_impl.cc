@@ -73,9 +73,8 @@ bool ZlibDecompressorImpl::inflateNext() {
 
   if (result < 0) {
     decompression_error_ = result;
-    ENVOY_LOG(trace,
-              "zlib decompression error: {}, msg: {}. Error codes are defined in "
-              "https://www.zlib.net/manual.html",
+    ENVOY_LOG(trace, "zlib decompression error: {}, msg: {}. Error codes are defined in "
+                     "https://www.zlib.net/manual.html",
               result, zstream_ptr_->msg);
     chargeErrorStats(result);
     return false;

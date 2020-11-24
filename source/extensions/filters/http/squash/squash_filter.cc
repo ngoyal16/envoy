@@ -98,22 +98,21 @@ std::string SquashFilterConfig::replaceEnv(const std::string& attachment_templat
 
   auto end_last_match = attachment_template.begin();
 
-  auto replaceEnvVarInTemplateCallback =
-      [&s, &attachment_template,
-       &end_last_match](const std::match_results<std::string::const_iterator>& match) {
-        auto start_match = attachment_template.begin() + match.position(0);
+  auto replaceEnvVarInTemplateCallback = [&s, &attachment_template, &end_last_match](
+      const std::match_results<std::string::const_iterator>& match) {
+    auto start_match = attachment_template.begin() + match.position(0);
 
-        s.append(end_last_match, start_match);
+    s.append(end_last_match, start_match);
 
-        std::string envar_name = match[1].str();
-        const char* envar_value = std::getenv(envar_name.c_str());
-        if (envar_value == nullptr) {
-          ENVOY_LOG(warn, "Squash: no environment variable named {}.", envar_name);
-        } else {
-          s.append(envar_value);
-        }
-        end_last_match = start_match + match.length(0);
-      };
+    std::string envar_name = match[1].str();
+    const char* envar_value = std::getenv(envar_name.c_str());
+    if (envar_value == nullptr) {
+      ENVOY_LOG(warn, "Squash: no environment variable named {}.", envar_name);
+    } else {
+      s.append(envar_value);
+    }
+    end_last_match = start_match + match.length(0);
+  };
 
   std::sregex_iterator begin(attachment_template.begin(), attachment_template.end(), ENV_REGEX),
       end;

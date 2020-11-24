@@ -141,7 +141,7 @@ private:
 
   using DurationStatsMap = absl::node_hash_map<CategoryDescription, DurationStats, Hash>;
 
-  // Maps {category, description} to DurationStats.
+// Maps {category, description} to DurationStats.
 #if PERF_THREAD_SAFE
   DurationStatsMap duration_stats_map_ ABSL_GUARDED_BY(mutex_);
   Thread::MutexBasicLockable mutex_;

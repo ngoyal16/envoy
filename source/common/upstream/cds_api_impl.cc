@@ -45,10 +45,10 @@ void CdsApiImpl::onConfigUpdate(const std::vector<Config::DecodedResourceRef>& r
     all_existing_clusters.warming_clusters_.erase(resource.get().name());
   }
   Protobuf::RepeatedPtrField<std::string> to_remove_repeated;
-  for (const auto& [cluster_name, _] : all_existing_clusters.active_clusters_) {
+  for (const auto & [ cluster_name, _ ] : all_existing_clusters.active_clusters_) {
     *to_remove_repeated.Add() = cluster_name;
   }
-  for (const auto& [cluster_name, _] : all_existing_clusters.warming_clusters_) {
+  for (const auto & [ cluster_name, _ ] : all_existing_clusters.warming_clusters_) {
     // Do not add the cluster twice when the cluster is both active and warming.
     if (all_existing_clusters.active_clusters_.count(cluster_name) == 0) {
       *to_remove_repeated.Add() = cluster_name;

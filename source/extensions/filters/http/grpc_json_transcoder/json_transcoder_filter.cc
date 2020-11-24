@@ -176,8 +176,8 @@ JsonTranscoderConfig::JsonTranscoderConfig(
       MethodInfoSharedPtr method_info;
       Status status = createMethodInfo(method, http_rule, method_info);
       if (!status.ok()) {
-        throw EnvoyException("transcoding_filter: Cannot register '" + method->full_name() +
-                             "': " + status.message().ToString());
+        throw EnvoyException("transcoding_filter: Cannot register '" + method->full_name() + "': " +
+                             status.message().ToString());
       }
 
       if (!PathMatcherUtility::RegisterByHttpRule(pmb, http_rule, ignored_query_parameters,
@@ -674,9 +674,8 @@ bool JsonTranscoderFilter::checkIfTranscoderFailed(const std::string& details) {
     ENVOY_LOG(debug, "Transcoding request error {}", request_status.ToString());
     error_ = true;
     decoder_callbacks_->sendLocalReply(
-        Http::Code::BadRequest,
-        absl::string_view(request_status.error_message().data(),
-                          request_status.error_message().size()),
+        Http::Code::BadRequest, absl::string_view(request_status.error_message().data(),
+                                                  request_status.error_message().size()),
         nullptr, absl::nullopt,
         absl::StrCat(details, "{", MessageUtil::CodeEnumToString(request_status.code()), "}"));
 

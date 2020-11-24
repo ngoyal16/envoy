@@ -140,9 +140,8 @@ void CodeStatsImpl::chargeResponseTiming(const ResponseTimingInfo& info) const {
   }
 
   if (!info.request_vcluster_name_.empty()) {
-    recordHistogram(info.global_scope_,
-                    {vhost_, info.request_vhost_name_, vcluster_, info.request_vcluster_name_,
-                     upstream_rq_time_},
+    recordHistogram(info.global_scope_, {vhost_, info.request_vhost_name_, vcluster_,
+                                         info.request_vcluster_name_, upstream_rq_time_},
                     Stats::Histogram::Unit::Milliseconds, count);
   }
 

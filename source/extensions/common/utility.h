@@ -34,8 +34,9 @@ public:
 #else
     bool warn_only = true;
 
-    if (runtime && !runtime->snapshot().deprecatedFeatureEnabled(
-                       "envoy.deprecated_features.allow_deprecated_extension_names", true)) {
+    if (runtime &&
+        !runtime->snapshot().deprecatedFeatureEnabled(
+            "envoy.deprecated_features.allow_deprecated_extension_names", true)) {
       warn_only = false;
     }
 

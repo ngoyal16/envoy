@@ -64,7 +64,7 @@ void setHealthFlag(Upstream::Host::HealthFlag flag, const Host& host, std::strin
 std::string HostUtility::healthFlagsToString(const Host& host) {
   std::string health_status;
 
-  // Invokes setHealthFlag for each health flag.
+// Invokes setHealthFlag for each health flag.
 #define SET_HEALTH_FLAG(name, notused)                                                             \
   setHealthFlag(Upstream::Host::HealthFlag::name, host, health_status);
   HEALTH_FLAG_ENUM_VALUES(SET_HEALTH_FLAG)

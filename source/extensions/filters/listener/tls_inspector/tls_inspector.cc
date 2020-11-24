@@ -92,31 +92,31 @@ Network::FilterStatus Filter::onAccept(Network::ListenerFilterCallbacks& cb) {
     return Network::FilterStatus::Continue;
   case ParseState::Continue:
     // do nothing but create the event
-    socket.ioHandle().initializeFileEvent(
-        cb.dispatcher(),
-        [this](uint32_t events) {
-          if (events & Event::FileReadyType::Closed) {
-            config_->stats().connection_closed_.inc();
-            done(false);
-            return;
-          }
+    socket.ioHandle().initializeFileEvent(cb.dispatcher(),
+                                          [this](uint32_t events) {
+                                            if (events & Event::FileReadyType::Closed) {
+                                              config_->stats().connection_closed_.inc();
+                                              done(false);
+                                              return;
+                                            }
 
-          ASSERT(events == Event::FileReadyType::Read);
-          ParseState parse_state = onRead();
-          switch (parse_state) {
-          case ParseState::Error:
-            done(false);
-            break;
-          case ParseState::Done:
-            done(true);
-            break;
-          case ParseState::Continue:
-            // do nothing but wait for the next event
-            break;
-          }
-        },
-        Event::PlatformDefaultTriggerType,
-        Event::FileReadyType::Read | Event::FileReadyType::Closed);
+                                            ASSERT(events == Event::FileReadyType::Read);
+                                            ParseState parse_state = onRead();
+                                            switch (parse_state) {
+                                            case ParseState::Error:
+                                              done(false);
+                                              break;
+                                            case ParseState::Done:
+                                              done(true);
+                                              break;
+                                            case ParseState::Continue:
+                                              // do nothing but wait for the next event
+                                              break;
+                                            }
+                                          },
+                                          Event::PlatformDefaultTriggerType,
+                                          Event::FileReadyType::Read |
+                                              Event::FileReadyType::Closed);
     return Network::FilterStatus::StopIteration;
   }
   NOT_REACHED_GCOVR_EXCL_LINE;

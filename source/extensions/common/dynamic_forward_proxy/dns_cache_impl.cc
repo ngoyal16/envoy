@@ -70,7 +70,7 @@ DnsCacheImpl::loadDnsCacheEntry(absl::string_view host, uint16_t default_port,
   } else {
     ENVOY_LOG(debug, "thread local miss for host '{}', posting to main thread", host);
     main_thread_dispatcher_.post(
-        [this, host = std::string(host), default_port]() { startCacheLoad(host, default_port); });
+        [ this, host = std::string(host), default_port ]() { startCacheLoad(host, default_port); });
     return {LoadDnsCacheEntryStatus::Loading,
             std::make_unique<LoadDnsCacheEntryHandleImpl>(tls_host_info.pending_resolutions_, host,
                                                           callbacks)};

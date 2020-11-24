@@ -134,7 +134,7 @@ void SubsetLoadBalancer::rebuildSingle() {
         const auto& fields = filter_it->second.fields();
         auto fields_it = fields.find(single_key_);
         if (fields_it != fields.end()) {
-          auto [iterator, did_insert] =
+          auto[iterator, did_insert] =
               single_host_per_subset_map_.try_emplace(fields_it->second, host);
           if (!did_insert) {
             // Two hosts with the same metadata value were found. Ignore all but one of them, and
@@ -523,22 +523,22 @@ void SubsetLoadBalancer::update(uint32_t priority, const HostVector& hosts_added
                                 const HostVector& hosts_removed) {
   updateFallbackSubset(priority, hosts_added, hosts_removed);
 
-  processSubsets(
-      hosts_added, hosts_removed,
-      [&](LbSubsetEntryPtr entry) {
-        entry->priority_subset_->update(priority, hosts_added, hosts_removed);
-      },
-      [&](LbSubsetEntryPtr entry, HostPredicate predicate, const SubsetMetadata& kvs) {
-        ENVOY_LOG(debug, "subset lb: creating load balancer for {}", describeMetadata(kvs));
+  processSubsets(hosts_added, hosts_removed,
+                 [&](LbSubsetEntryPtr entry) {
+                   entry->priority_subset_->update(priority, hosts_added, hosts_removed);
+                 },
+                 [&](LbSubsetEntryPtr entry, HostPredicate predicate, const SubsetMetadata& kvs) {
+                   ENVOY_LOG(debug, "subset lb: creating load balancer for {}",
+                             describeMetadata(kvs));
 
-        // Initialize new entry with hosts and update stats. (An uninitialized entry
-        // with only removed hosts is a degenerate case and we leave the entry
-        // uninitialized.)
-        entry->priority_subset_ = std::make_shared<PrioritySubsetImpl>(
-            *this, predicate, locality_weight_aware_, scale_locality_weight_);
-        stats_.lb_subsets_active_.inc();
-        stats_.lb_subsets_created_.inc();
-      });
+                   // Initialize new entry with hosts and update stats. (An uninitialized entry
+                   // with only removed hosts is a degenerate case and we leave the entry
+                   // uninitialized.)
+                   entry->priority_subset_ = std::make_shared<PrioritySubsetImpl>(
+                       *this, predicate, locality_weight_aware_, scale_locality_weight_);
+                   stats_.lb_subsets_active_.inc();
+                   stats_.lb_subsets_created_.inc();
+                 });
 }
 
 bool SubsetLoadBalancer::hostMatches(const SubsetMetadata& kvs, const Host& host) {

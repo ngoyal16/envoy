@@ -191,11 +191,10 @@ ConnectionHandlerImpl::ActiveListenerImplBase::ActiveListenerImplBase(
 
 ConnectionHandlerImpl::ActiveTcpListener::ActiveTcpListener(ConnectionHandlerImpl& parent,
                                                             Network::ListenerConfig& config)
-    : ActiveTcpListener(
-          parent,
-          parent.dispatcher_.createListener(config.listenSocketFactory().getListenSocket(), *this,
-                                            config.bindToPort(), config.tcpBacklogSize()),
-          config) {}
+    : ActiveTcpListener(parent, parent.dispatcher_.createListener(
+                                    config.listenSocketFactory().getListenSocket(), *this,
+                                    config.bindToPort(), config.tcpBacklogSize()),
+                        config) {}
 
 ConnectionHandlerImpl::ActiveTcpListener::ActiveTcpListener(ConnectionHandlerImpl& parent,
                                                             Network::ListenerPtr&& listener,
@@ -556,7 +555,7 @@ void ConnectionHandlerImpl::ActiveTcpListener::post(Network::ConnectionSocketPtr
   socket_to_rebalance->socket = std::move(socket);
 
   parent_.dispatcher_.post(
-      [socket_to_rebalance, tag = config_->listenerTag(), &parent = parent_]() {
+      [ socket_to_rebalance, tag = config_->listenerTag(), &parent = parent_ ]() {
         auto listener = parent.findActiveListenerByTag(tag);
         if (listener.has_value()) {
           // If the tag matches this must be a TCP listener.
@@ -660,7 +659,7 @@ void ActiveUdpListenerBase::post(Network::UdpRecvData&& data) {
   *data_to_post = std::move(data);
 
   udp_listener_->dispatcher().post(
-      [data_to_post, tag = config_->listenerTag(), &parent = parent_]() {
+      [ data_to_post, tag = config_->listenerTag(), &parent = parent_ ]() {
         Network::UdpListenerCallbacksOptRef listener = parent.getUdpListenerCallbacks(tag);
         if (listener.has_value()) {
           listener->get().onDataWorker(std::move(*data_to_post));

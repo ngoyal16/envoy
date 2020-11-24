@@ -228,10 +228,11 @@ void LoadBalancerBase::recalculatePerPriorityState(uint32_t priority,
   }
 
   // The allocated load between healthy and degraded should be exactly 100.
-  ASSERT(100 == std::accumulate(per_priority_load.healthy_priority_load_.get().begin(),
-                                per_priority_load.healthy_priority_load_.get().end(), 0) +
-                    std::accumulate(per_priority_load.degraded_priority_load_.get().begin(),
-                                    per_priority_load.degraded_priority_load_.get().end(), 0));
+  ASSERT(100 ==
+         std::accumulate(per_priority_load.healthy_priority_load_.get().begin(),
+                         per_priority_load.healthy_priority_load_.get().end(), 0) +
+             std::accumulate(per_priority_load.degraded_priority_load_.get().begin(),
+                             per_priority_load.degraded_priority_load_.get().end(), 0));
 }
 
 // Method iterates through priority levels and turns on/off panic mode.

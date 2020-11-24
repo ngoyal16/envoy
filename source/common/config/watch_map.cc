@@ -170,7 +170,7 @@ void WatchMap::onConfigUpdate(
   }
 
   // We just bundled up the updates into nice per-watch packages. Now, deliver them.
-  for (const auto& [cur_watch, resource_to_add] : per_watch_added) {
+  for (const auto & [ cur_watch, resource_to_add ] : per_watch_added) {
     if (deferred_removed_during_update_->count(cur_watch) > 0) {
       continue;
     }
@@ -186,7 +186,7 @@ void WatchMap::onConfigUpdate(
     }
   }
   // Any removals-only updates will not have been picked up in the per_watch_added loop.
-  for (auto& [cur_watch, resource_to_remove] : per_watch_removed) {
+  for (auto & [ cur_watch, resource_to_remove ] : per_watch_removed) {
     if (deferred_removed_during_update_->count(cur_watch) > 0) {
       continue;
     }

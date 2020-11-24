@@ -137,14 +137,14 @@ void Wasm::setTimerPeriod(uint32_t context_id, std::chrono::milliseconds new_per
     timer->disableTimer();
   }
   if (period.count() > 0) {
-    timer = dispatcher_.createTimer(
-        [weak = std::weak_ptr<Wasm>(std::static_pointer_cast<Wasm>(shared_from_this())),
-         context_id]() {
-          auto shared = weak.lock();
-          if (shared) {
-            shared->tickHandler(context_id);
-          }
-        });
+    timer = dispatcher_.createTimer([
+      weak = std::weak_ptr<Wasm>(std::static_pointer_cast<Wasm>(shared_from_this())), context_id
+    ]() {
+      auto shared = weak.lock();
+      if (shared) {
+        shared->tickHandler(context_id);
+      }
+    });
     timer->enableTimer(period);
   }
 }
@@ -186,10 +186,12 @@ Word resolve_dns(void* raw_context, Word dns_address_ptr, Word dns_address_size,
   if (!context->wasm()->setDatatype(token_ptr, token)) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto callback = [weak_wasm = std::weak_ptr<Wasm>(context->wasm()->sharedThis()), root_context,
-                   context_id = context->id(),
-                   token](Envoy::Network::DnsResolver::ResolutionStatus status,
-                          std::list<Envoy::Network::DnsResponse>&& response) {
+  auto callback =
+      [
+        weak_wasm = std::weak_ptr<Wasm>(context->wasm()->sharedThis()), root_context,
+        context_id = context->id(), token
+      ](Envoy::Network::DnsResolver::ResolutionStatus status,
+        std::list<Envoy::Network::DnsResponse> && response) {
     auto wasm = weak_wasm.lock();
     if (!wasm) {
       return;

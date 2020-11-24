@@ -32,9 +32,9 @@
 #define QUICHE_LOG_IMPL_INTERNAL(condition, logstream)                                             \
   switch (0)                                                                                       \
   default:                                                                                         \
-    if (!(condition)) {                                                                            \
-    } else                                                                                         \
-      logstream
+  if (!(condition)) {                                                                              \
+  } else                                                                                           \
+  logstream
 
 #define QUICHE_LOG_IF_IMPL(severity, condition)                                                    \
   QUICHE_LOG_IMPL_INTERNAL((condition) && quic::IsLogLevelEnabled(quic::severity),                 \

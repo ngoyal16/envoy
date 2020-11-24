@@ -108,7 +108,8 @@ Status ProtocolConstraints::checkInboundFrameLimits() {
   }
 
   if (inbound_window_update_frames_ >
-      1 + 2 * (inbound_streams_ +
+      1 +
+          2 * (inbound_streams_ +
                max_inbound_window_update_frames_per_data_frame_sent_ * outbound_data_frames_)) {
     stats_.inbound_window_update_frames_flood_.inc();
     return bufferFloodError("Too many WINDOW_UPDATE frames");

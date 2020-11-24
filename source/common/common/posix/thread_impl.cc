@@ -43,13 +43,12 @@ public:
       name_ = options->name_.substr(0, PTHREAD_MAX_THREADNAME_LEN_INCLUDING_NULL_BYTE - 1);
     }
     RELEASE_ASSERT(Logger::Registry::initialized(), "");
-    const int rc = pthread_create(
-        &thread_handle_, nullptr,
-        [](void* arg) -> void* {
-          static_cast<ThreadImplPosix*>(arg)->thread_routine_();
-          return nullptr;
-        },
-        this);
+    const int rc = pthread_create(&thread_handle_, nullptr,
+                                  [](void* arg) -> void* {
+                                    static_cast<ThreadImplPosix*>(arg)->thread_routine_();
+                                    return nullptr;
+                                  },
+                                  this);
     RELEASE_ASSERT(rc == 0, "");
 
 #if SUPPORTS_PTHREAD_NAMING

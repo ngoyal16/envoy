@@ -29,7 +29,9 @@ DeltaSubscriptionState::DeltaSubscriptionState(std::string type_url,
             watch_map_.onConfigUpdate({}, removed_resources, "");
           },
           dispatcher, dispatcher.timeSource()),
-      type_url_(std::move(type_url)), watch_map_(watch_map), local_info_(local_info),
+      type_url_(std::move(type_url)),
+      watch_map_(watch_map),
+      local_info_(local_info),
       dispatcher_(dispatcher) {}
 
 void DeltaSubscriptionState::updateSubscriptionInterest(const std::set<std::string>& cur_added,
@@ -168,7 +170,7 @@ DeltaSubscriptionState::getNextRequestAckless() {
     // initial_resource_versions "must be populated for first request in a stream".
     // Also, since this might be a new server, we must explicitly state *all* of our subscription
     // interest.
-    for (auto const& [resource_name, resource_state] : resource_state_) {
+    for (auto const & [ resource_name, resource_state ] : resource_state_) {
       // Populate initial_resource_versions with the resource versions we currently have.
       // Resources we are interested in, but are still waiting to get any version of from the
       // server, do not belong in initial_resource_versions. (But do belong in new subscriptions!)

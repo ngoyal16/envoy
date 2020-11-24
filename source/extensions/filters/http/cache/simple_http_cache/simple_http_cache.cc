@@ -21,9 +21,10 @@ public:
   void getHeaders(LookupHeadersCallback&& cb) override {
     auto entry = cache_.lookup(request_);
     body_ = std::move(entry.body_);
-    cb(entry.response_headers_ ? request_.makeLookupResult(std::move(entry.response_headers_),
-                                                           std::move(entry.metadata_), body_.size())
-                               : LookupResult{});
+    cb(entry.response_headers_
+           ? request_.makeLookupResult(std::move(entry.response_headers_),
+                                       std::move(entry.metadata_), body_.size())
+           : LookupResult{});
   }
 
   void getBody(const AdjustedByteRange& range, LookupBodyCallback&& cb) override {

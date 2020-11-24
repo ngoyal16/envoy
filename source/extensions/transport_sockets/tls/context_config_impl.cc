@@ -191,10 +191,9 @@ ContextConfigImpl::ContextConfigImpl(
       // getCombinedValidationContextConfig() throws exception, validation_context_config_ will not
       // get updated.
       cvc_validation_callback_handle_ =
-          certificate_validation_context_provider_->addValidationCallback(
-              [this](
-                  const envoy::extensions::transport_sockets::tls::v3::CertificateValidationContext&
-                      dynamic_cvc) { getCombinedValidationContextConfig(dynamic_cvc); });
+          certificate_validation_context_provider_->addValidationCallback([this](
+              const envoy::extensions::transport_sockets::tls::v3::CertificateValidationContext&
+                  dynamic_cvc) { getCombinedValidationContextConfig(dynamic_cvc); });
     }
     // Load inlined, static or dynamic secret that's already available.
     if (certificate_validation_context_provider_->secret() != nullptr) {

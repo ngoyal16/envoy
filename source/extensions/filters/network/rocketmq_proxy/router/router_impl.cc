@@ -125,9 +125,8 @@ void RouterImpl::sendRequestToUpstream(ActiveMessage& active_message) {
     /*
      * UpstreamRequest#onPoolReady or #onPoolFailure should have been invoked.
      */
-    ENVOY_LOG(trace,
-              "One connection is picked up from connection pool, callback should have been "
-              "executed. Opaque: {}",
+    ENVOY_LOG(trace, "One connection is picked up from connection pool, callback should have been "
+                     "executed. Opaque: {}",
               opaque);
   }
 }

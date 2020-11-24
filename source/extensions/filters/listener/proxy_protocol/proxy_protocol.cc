@@ -67,13 +67,13 @@ size_t Config::numberOfNeededTlvTypes() const { return tlv_types_.size(); }
 Network::FilterStatus Filter::onAccept(Network::ListenerFilterCallbacks& cb) {
   ENVOY_LOG(debug, "proxy_protocol: New connection accepted");
   Network::ConnectionSocket& socket = cb.socket();
-  socket.ioHandle().initializeFileEvent(
-      cb.dispatcher(),
-      [this](uint32_t events) {
-        ASSERT(events == Event::FileReadyType::Read);
-        onRead();
-      },
-      Event::PlatformDefaultTriggerType, Event::FileReadyType::Read);
+  socket.ioHandle().initializeFileEvent(cb.dispatcher(),
+                                        [this](uint32_t events) {
+                                          ASSERT(events == Event::FileReadyType::Read);
+                                          onRead();
+                                        },
+                                        Event::PlatformDefaultTriggerType,
+                                        Event::FileReadyType::Read);
   cb_ = &cb;
   return Network::FilterStatus::StopIteration;
 }

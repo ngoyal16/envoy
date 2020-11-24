@@ -37,10 +37,11 @@ void createLuaTableFromStringList(lua_State* state, const StringList& list) {
 // which is large enough to hold timestamp-since-epoch in seconds. Note: In Lua, we usually use
 // os.time(os.date("!*t")) to get current timestamp-since-epoch in seconds.
 int64_t timestampInSeconds(const absl::optional<SystemTime>& system_time) {
-  return system_time.has_value() ? std::chrono::duration_cast<std::chrono::seconds>(
-                                       system_time.value().time_since_epoch())
-                                       .count()
-                                 : 0;
+  return system_time.has_value()
+             ? std::chrono::duration_cast<std::chrono::seconds>(
+                   system_time.value().time_since_epoch())
+                   .count()
+             : 0;
 }
 
 } // namespace

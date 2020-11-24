@@ -47,7 +47,7 @@ Event::PostCb InstanceImpl::SlotImpl::wrapCallback(const Event::PostCb& cb) {
   //
   // Note also that this logic is duplicated below and dataCallback(), rather
   // than incurring another lambda redirection.
-  return [still_alive_guard = std::weak_ptr<bool>(still_alive_guard_), cb] {
+  return [ still_alive_guard = std::weak_ptr<bool>(still_alive_guard_), cb ] {
     if (!still_alive_guard.expired()) {
       cb();
     }
@@ -71,7 +71,7 @@ ThreadLocalObjectSharedPtr InstanceImpl::SlotImpl::get() { return getWorker(inde
 
 Event::PostCb InstanceImpl::SlotImpl::dataCallback(const UpdateCb& cb) {
   // See the header file comments for still_alive_guard_ for why we capture index_.
-  return [still_alive_guard = std::weak_ptr<bool>(still_alive_guard_), cb, index = index_] {
+  return [ still_alive_guard = std::weak_ptr<bool>(still_alive_guard_), cb, index = index_ ] {
     // This duplicates logic in wrapCallback() (above). Using wrapCallback also
     // works, but incurs another indirection of lambda at runtime. As the
     // duplicated logic is only an if-statement and a bool function, it doesn't
@@ -97,7 +97,7 @@ void InstanceImpl::SlotImpl::set(InitializeCb cb) {
   for (Event::Dispatcher& dispatcher : parent_.registered_threads_) {
     // See the header file comments for still_alive_guard_ for why we capture index_.
     dispatcher.post(wrapCallback(
-        [index = index_, cb, &dispatcher]() -> void { setThreadLocal(index, cb(dispatcher)); }));
+        [ index = index_, cb, &dispatcher ]()->void { setThreadLocal(index, cb(dispatcher)); }));
   }
 
   // Handle main thread.

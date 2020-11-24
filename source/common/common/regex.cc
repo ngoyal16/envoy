@@ -94,9 +94,8 @@ public:
       if (regex_program_size > max_program_size_warn_level) {
         warn_count.inc();
         ENVOY_LOG_MISC(
-            warn,
-            "regex '{}' RE2 program size of {} > max program size of {} set for the warn "
-            "level threshold. Increase configured max program size if necessary.",
+            warn, "regex '{}' RE2 program size of {} > max program size of {} set for the warn "
+                  "level threshold. Increase configured max program size if necessary.",
             config.regex(), regex_program_size, max_program_size_warn_level);
       }
     }

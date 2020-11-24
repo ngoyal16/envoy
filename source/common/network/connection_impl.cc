@@ -25,7 +25,6 @@ namespace {
 
 constexpr absl::string_view kTransportSocketConnectTimeoutTerminationDetails =
     "transport socket timeout was reached";
-
 }
 
 void ConnectionImplUtility::updateBufferStats(uint64_t delta, uint64_t new_total,
@@ -606,7 +605,7 @@ void ConnectionImpl::onReadReady() {
 
 absl::optional<Connection::UnixDomainSocketPeerCredentials>
 ConnectionImpl::unixSocketPeerCredentials() const {
-  // TODO(snowp): Support non-linux platforms.
+// TODO(snowp): Support non-linux platforms.
 #ifndef SO_PEERCRED
   return absl::nullopt;
 #else

@@ -132,11 +132,11 @@ void LightStepDriver::LightStepTransporter::Send(std::unique_ptr<lightstep::Buff
     active_report_ = std::move(report);
     active_callback_ = &callback;
     active_cluster_ = collector_cluster_.info();
-    active_request_ = driver_.clusterManager()
-                          .httpAsyncClientForCluster(collector_cluster_.info()->name())
-                          .send(std::move(message), *this,
-                                Http::AsyncClient::RequestOptions().setTimeout(
-                                    std::chrono::milliseconds(timeout)));
+    active_request_ =
+        driver_.clusterManager()
+            .httpAsyncClientForCluster(collector_cluster_.info()->name())
+            .send(std::move(message), *this, Http::AsyncClient::RequestOptions().setTimeout(
+                                                 std::chrono::milliseconds(timeout)));
   } else {
     ENVOY_LOG(debug, "collector cluster '{}' does not exist", driver_.cluster());
     driver_.tracerStats().reports_skipped_no_cluster_.inc();
@@ -190,10 +190,9 @@ LightStepDriver::LightStepDriver(const envoy::config::trace::v3::LightstepConfig
     : OpenTracingDriver{scope}, cm_{cluster_manager},
       tracer_stats_{LIGHTSTEP_TRACER_STATS(POOL_COUNTER_PREFIX(scope, "tracing.lightstep."))},
       tls_{tls.allocateSlot()}, runtime_{runtime}, options_{std::move(options)},
-      propagation_mode_{propagation_mode}, grpc_context_(grpc_context),
-      pool_(scope.symbolTable()), request_stat_names_{
-                                      pool_.add(lightstep::CollectorServiceFullName()),
-                                      pool_.add(lightstep::CollectorMethodName())} {
+      propagation_mode_{propagation_mode}, grpc_context_(grpc_context), pool_(scope.symbolTable()),
+      request_stat_names_{pool_.add(lightstep::CollectorServiceFullName()),
+                          pool_.add(lightstep::CollectorMethodName())} {
 
   Config::Utility::checkCluster("envoy.tracers.lightstep", lightstep_config.collector_cluster(),
                                 cm_, /* allow_added_via_api */ true);
@@ -206,8 +205,10 @@ LightStepDriver::LightStepDriver(const envoy::config::trace::v3::LightstepConfig
 
   auto propagation_modes = MakePropagationModes(lightstep_config);
 
-  tls_->set([this, propagation_modes = std::move(propagation_modes)](
-                Event::Dispatcher& dispatcher) -> ThreadLocal::ThreadLocalObjectSharedPtr {
+  tls_->set([
+    this, propagation_modes = std::move(propagation_modes)
+  ](Event::Dispatcher &
+    dispatcher)->ThreadLocal::ThreadLocalObjectSharedPtr {
     lightstep::LightStepTracerOptions tls_options;
     tls_options.access_token = options_->access_token;
     tls_options.component_name = options_->component_name;

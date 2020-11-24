@@ -31,10 +31,10 @@ MetadataMatchCriteriaImpl::extractMetadataMatchCriteria(const MetadataMatchCrite
 
   // Sort criteria by name to speed matching in the subset load balancer.
   // See source/docs/subset_load_balancer.md.
-  std::sort(
-      v.begin(), v.end(),
-      [](const MetadataMatchCriterionConstSharedPtr& a,
-         const MetadataMatchCriterionConstSharedPtr& b) -> bool { return a->name() < b->name(); });
+  std::sort(v.begin(), v.end(), [](const MetadataMatchCriterionConstSharedPtr& a,
+                                   const MetadataMatchCriterionConstSharedPtr& b) -> bool {
+    return a->name() < b->name();
+  });
 
   return v;
 }

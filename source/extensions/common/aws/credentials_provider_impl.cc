@@ -202,9 +202,8 @@ DefaultCredentialsProviderChain::DefaultCredentialsProviderChain(
     const auto authorization_token =
         absl::NullSafeStringView(std::getenv(AWS_CONTAINER_AUTHORIZATION_TOKEN));
     if (!authorization_token.empty()) {
-      ENVOY_LOG(debug,
-                "Using task role credentials provider with URI: "
-                "{} and authorization token",
+      ENVOY_LOG(debug, "Using task role credentials provider with URI: "
+                       "{} and authorization token",
                 full_uri);
       add(factories.createTaskRoleCredentialsProvider(api, metadata_fetcher, full_uri,
                                                       authorization_token));

@@ -83,12 +83,12 @@ Http::FilterHeadersStatus Filter::decodeHeaders(Http::RequestHeaderMap&, bool) {
 
   config->stats().enforced_.inc();
 
-  decoder_callbacks_->sendLocalReply(
-      config->status(), "local_rate_limited",
-      [this, config](Http::HeaderMap& headers) {
-        config->responseHeadersParser().evaluateHeaders(headers, decoder_callbacks_->streamInfo());
-      },
-      absl::nullopt, "local_rate_limited");
+  decoder_callbacks_->sendLocalReply(config->status(), "local_rate_limited",
+                                     [this, config](Http::HeaderMap& headers) {
+                                       config->responseHeadersParser().evaluateHeaders(
+                                           headers, decoder_callbacks_->streamInfo());
+                                     },
+                                     absl::nullopt, "local_rate_limited");
   decoder_callbacks_->streamInfo().setResponseFlag(StreamInfo::ResponseFlag::RateLimited);
 
   return Http::FilterHeadersStatus::StopIteration;

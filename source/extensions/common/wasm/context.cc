@@ -1564,9 +1564,10 @@ WasmResult Context::sendLocalResponse(uint32_t response_code, absl::string_view 
     // so in theory it could call this and the Context in the VM would be invalid,
     // but because it only gets called after the connections have drained, the call to
     // sendLocalReply() will fail. Net net, this is safe.
-    wasm()->addAfterVmCallAction([this, response_code, body_text = std::string(body_text),
-                                  modify_headers = std::move(modify_headers), grpc_status,
-                                  details = std::string(details)] {
+    wasm()->addAfterVmCallAction([
+      this, response_code, body_text = std::string(body_text),
+      modify_headers = std::move(modify_headers), grpc_status, details = std::string(details)
+    ] {
       decoder_callbacks_->sendLocalReply(static_cast<Envoy::Http::Code>(response_code), body_text,
                                          modify_headers, grpc_status, details);
     });
@@ -1714,7 +1715,7 @@ void Context::onHttpCallSuccess(uint32_t token, Envoy::Http::ResponseMessagePtr&
   // TODO: convert this into a function in proxy-wasm-cpp-host and use here.
   if (proxy_wasm::current_context_ != nullptr) {
     // We are in a reentrant call, so defer.
-    wasm()->addAfterVmCallAction([this, token, response = response.release()] {
+    wasm()->addAfterVmCallAction([ this, token, response = response.release() ] {
       onHttpCallSuccess(token, std::unique_ptr<Envoy::Http::ResponseMessage>(response));
     });
     return;
@@ -1759,7 +1760,7 @@ void Context::onGrpcCloseWrapper(uint32_t token, const Grpc::Status::GrpcStatus&
                                  const absl::string_view message) {
   if (proxy_wasm::current_context_ != nullptr) {
     // We are in a reentrant call, so defer.
-    wasm()->addAfterVmCallAction([this, token, status, message = std::string(message)] {
+    wasm()->addAfterVmCallAction([ this, token, status, message = std::string(message) ] {
       onGrpcCloseWrapper(token, status, message);
     });
     return;

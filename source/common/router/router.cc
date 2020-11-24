@@ -281,17 +281,17 @@ void Filter::chargeUpstreamCode(uint64_t response_status_code,
     const bool internal_request = Http::HeaderUtility::isEnvoyInternalRequest(*downstream_headers_);
 
     Stats::StatName upstream_zone = upstreamZone(upstream_host);
-    Http::CodeStats::ResponseStatInfo info{config_.scope_,
-                                           cluster_->statsScope(),
-                                           config_.empty_stat_name_,
-                                           response_status_code,
-                                           internal_request,
-                                           route_entry_->virtualHost().statName(),
-                                           request_vcluster_ ? request_vcluster_->statName()
-                                                             : config_.empty_stat_name_,
-                                           config_.zone_name_,
-                                           upstream_zone,
-                                           is_canary};
+    Http::CodeStats::ResponseStatInfo info{
+        config_.scope_,
+        cluster_->statsScope(),
+        config_.empty_stat_name_,
+        response_status_code,
+        internal_request,
+        route_entry_->virtualHost().statName(),
+        request_vcluster_ ? request_vcluster_->statName() : config_.empty_stat_name_,
+        config_.zone_name_,
+        upstream_zone,
+        is_canary};
 
     Http::CodeStats& code_stats = httpContext().codeStats();
     code_stats.chargeResponseStat(info);
@@ -372,21 +372,22 @@ Http::FilterHeadersStatus Filter::decodeHeaders(Http::RequestHeaderMap& headers,
     callbacks_->streamInfo().setRouteName(direct_response->routeName());
     callbacks_->sendLocalReply(
         direct_response->responseCode(), direct_response->responseBody(),
-        [this, direct_response,
-         &request_headers = headers](Http::ResponseHeaderMap& response_headers) -> void {
-          std::string new_path;
-          if (request_headers.Path()) {
-            new_path = direct_response->newPath(request_headers);
-          }
-          // See https://tools.ietf.org/html/rfc7231#section-7.1.2.
-          const auto add_location =
-              direct_response->responseCode() == Http::Code::Created ||
-              Http::CodeUtility::is3xx(enumToInt(direct_response->responseCode()));
-          if (!new_path.empty() && add_location) {
-            response_headers.addReferenceKey(Http::Headers::get().Location, new_path);
-          }
-          direct_response->finalizeResponseHeaders(response_headers, callbacks_->streamInfo());
-        },
+        [ this, direct_response,
+          &request_headers = headers ](Http::ResponseHeaderMap & response_headers)
+            ->void {
+              std::string new_path;
+              if (request_headers.Path()) {
+                new_path = direct_response->newPath(request_headers);
+              }
+              // See https://tools.ietf.org/html/rfc7231#section-7.1.2.
+              const auto add_location =
+                  direct_response->responseCode() == Http::Code::Created ||
+                  Http::CodeUtility::is3xx(enumToInt(direct_response->responseCode()));
+              if (!new_path.empty() && add_location) {
+                response_headers.addReferenceKey(Http::Headers::get().Location, new_path);
+              }
+              direct_response->finalizeResponseHeaders(response_headers, callbacks_->streamInfo());
+            },
         absl::nullopt, StreamInfo::ResponseCodeDetails::get().DirectResponse);
     return Http::FilterHeadersStatus::StopIteration;
   }
@@ -974,16 +975,16 @@ void Filter::onUpstreamAbort(Http::Code code, StreamInfo::ResponseFlag response_
     // This will destroy any created retry timers.
     cleanup();
     // sendLocalReply may instead reset the stream if downstream_response_started_ is true.
-    callbacks_->sendLocalReply(
-        code, body,
-        [dropped, this](Http::ResponseHeaderMap& headers) {
-          if (dropped && !config_.suppress_envoy_headers_) {
-            headers.addReference(Http::Headers::get().EnvoyOverloaded,
-                                 Http::Headers::get().EnvoyOverloadedValues.True);
-          }
-          modify_headers_(headers);
-        },
-        absl::nullopt, details);
+    callbacks_->sendLocalReply(code, body,
+                               [dropped, this](Http::ResponseHeaderMap& headers) {
+                                 if (dropped && !config_.suppress_envoy_headers_) {
+                                   headers.addReference(
+                                       Http::Headers::get().EnvoyOverloaded,
+                                       Http::Headers::get().EnvoyOverloadedValues.True);
+                                 }
+                                 modify_headers_(headers);
+                               },
+                               absl::nullopt, details);
   }
 }
 
@@ -1364,17 +1365,17 @@ void Filter::onUpstreamComplete(UpstreamRequest& upstream_request) {
     const bool internal_request = Http::HeaderUtility::isEnvoyInternalRequest(*downstream_headers_);
 
     Http::CodeStats& code_stats = httpContext().codeStats();
-    Http::CodeStats::ResponseTimingInfo info{config_.scope_,
-                                             cluster_->statsScope(),
-                                             config_.empty_stat_name_,
-                                             response_time,
-                                             upstream_request.upstreamCanary(),
-                                             internal_request,
-                                             route_entry_->virtualHost().statName(),
-                                             request_vcluster_ ? request_vcluster_->statName()
-                                                               : config_.empty_stat_name_,
-                                             config_.zone_name_,
-                                             upstreamZone(upstream_request.upstreamHost())};
+    Http::CodeStats::ResponseTimingInfo info{
+        config_.scope_,
+        cluster_->statsScope(),
+        config_.empty_stat_name_,
+        response_time,
+        upstream_request.upstreamCanary(),
+        internal_request,
+        route_entry_->virtualHost().statName(),
+        request_vcluster_ ? request_vcluster_->statName() : config_.empty_stat_name_,
+        config_.zone_name_,
+        upstreamZone(upstream_request.upstreamHost())};
 
     code_stats.chargeResponseTiming(info);
 
