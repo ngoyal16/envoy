@@ -298,8 +298,7 @@ Http::FilterHeadersStatus OAuth2Filter::decodeHeaders(Http::RequestHeaderMap& he
     const std::string escaped_redirect_uri =
         Http::Utility::PercentEncoding::encode(redirect_uri, ":/=&?");
 
-    const std::string escaped_auth_scopes =
-        Http::Utility::PercentEncoding::encode(absl::StrJoin(config_->authScopes(), " "), ":/=&?");
+    const std::string escaped_auth_scopes = absl::StrJoin(config_->authScopes(), "%20"), ":/=&?";
 
     const std::string new_url =
         fmt::format(AuthorizationEndpointFormat, config_->authorizationEndpoint(),
