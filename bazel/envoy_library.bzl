@@ -93,7 +93,22 @@ def envoy_cc_extension(
         fail("Unknown extension status: " + status)
     if "//visibility:public" not in visibility:
         visibility = visibility + extra_visibility
-    envoy_cc_library(name, tags = tags, visibility = visibility, **kwargs)
+
+    ext_name = name + "_envoy_extension"
+    envoy_cc_library(
+        name = name,
+        tags = tags,
+        visibility = visibility,
+        **kwargs
+    )
+    cc_library(
+        name = ext_name,
+        deps = select({
+            ":is_enabled": [":" + name],
+            "//conditions:default": [],
+        }),
+        visibility = visibility,
+    )
 
 # Envoy C++ library targets should be specified with this function.
 def envoy_cc_library(
@@ -144,7 +159,7 @@ def envoy_cc_library(
         hdrs = hdrs,
         copts = envoy_copts(repository) + copts,
         visibility = visibility,
-        tags = ["nocompdb"],
+        tags = ["nocompdb"] + tags,
         deps = [":" + name],
         strip_include_prefix = strip_include_prefix,
     )

@@ -6,6 +6,7 @@
 
 #include "extensions/common/wasm/wasm.h"
 
+#include "test/extensions/common/wasm/wasm_runtime.h"
 #include "test/mocks/server/mocks.h"
 #include "test/mocks/stats/mocks.h"
 #include "test/mocks/upstream/mocks.h"
@@ -78,7 +79,7 @@ public:
     Extensions::Common::Wasm::Context::log(static_cast<spdlog::level::level_enum>(level), message);
     return proxy_wasm::WasmResult::Ok;
   }
-  MOCK_METHOD2(log_, void(spdlog::level::level_enum level, absl::string_view message));
+  MOCK_METHOD(void, log_, (spdlog::level::level_enum level, absl::string_view message));
 };
 
 class WasmCommonTest : public testing::TestWithParam<std::string> {
@@ -89,20 +90,7 @@ public:
   }
 };
 
-// NB: this is required by VC++ which can not handle the use of macros in the macro definitions
-// used by INSTANTIATE_TEST_SUITE_P.
-auto test_values = testing::Values(
-#if defined(ENVOY_WASM_V8)
-    "v8",
-#endif
-#if defined(ENVOY_WASM_WAVM)
-    "wavm",
-#endif
-#if defined(ENVOY_WASM_WASMTIME)
-    "wasmtime",
-#endif
-    "null");
-INSTANTIATE_TEST_SUITE_P(Runtimes, WasmCommonTest, test_values);
+INSTANTIATE_TEST_SUITE_P(Runtimes, WasmCommonTest, Envoy::Extensions::Common::Wasm::runtime_values);
 
 TEST_P(WasmCommonTest, EnvoyWasm) {
   auto envoy_wasm = std::make_unique<EnvoyWasm>();
@@ -159,9 +147,10 @@ TEST_P(WasmCommonTest, EnvoyWasm) {
 
   delete root_context;
 
-  WasmStatePrototype wasm_state_prototype(true, WasmType::Bytes, "",
-                                          StreamInfo::FilterState::LifeSpan::FilterChain);
-  auto wasm_state = std::make_unique<WasmState>(wasm_state_prototype);
+  Filters::Common::Expr::CelStatePrototype wasm_state_prototype(
+      true, Filters::Common::Expr::CelStateType::Bytes, "",
+      StreamInfo::FilterState::LifeSpan::FilterChain);
+  auto wasm_state = std::make_unique<Filters::Common::Expr::CelState>(wasm_state_prototype);
   Protobuf::Arena arena;
   EXPECT_EQ(wasm_state->exprValue(&arena, true).MessageOrDie(), nullptr);
   wasm_state->setValue("foo");
@@ -458,6 +447,9 @@ TEST_P(WasmCommonTest, Utilities) {
 }
 
 TEST_P(WasmCommonTest, Stats) {
+  // We set logger level to critical here to gain more coverage.
+  Logger::Registry::getLog(Logger::Id::wasm).set_level(spdlog::level::critical);
+
   Stats::IsolatedStoreImpl stats_store;
   Api::ApiPtr api = Api::createApiForTest(stats_store);
   Upstream::MockClusterManager cluster_manager;
@@ -627,8 +619,8 @@ TEST_P(WasmCommonTest, WASI) {
   wasm->setCreateContextForTesting(
       nullptr, [](Wasm* wasm, const std::shared_ptr<Plugin>& plugin) -> ContextBase* {
         auto root_context = new TestContext(wasm, plugin);
-        EXPECT_CALL(*root_context, log_(spdlog::level::info, Eq("WASI write to stdout"))).Times(1);
-        EXPECT_CALL(*root_context, log_(spdlog::level::err, Eq("WASI write to stderr"))).Times(1);
+        EXPECT_CALL(*root_context, log_(spdlog::level::info, Eq("WASI write to stdout")));
+        EXPECT_CALL(*root_context, log_(spdlog::level::err, Eq("WASI write to stderr")));
         return root_context;
       });
   wasm->start(plugin);
@@ -770,9 +762,10 @@ TEST_P(WasmCommonTest, RemoteCode) {
   NiceMock<Http::MockAsyncClient> client;
   NiceMock<Http::MockAsyncClientRequest> request(&client);
 
-  EXPECT_CALL(cluster_manager, httpAsyncClientForCluster("example_com"))
-      .WillOnce(ReturnRef(cluster_manager.async_client_));
-  EXPECT_CALL(cluster_manager.async_client_, send_(_, _, _))
+  cluster_manager.initializeThreadLocalClusters({"example_com"});
+  EXPECT_CALL(cluster_manager.thread_local_cluster_, httpAsyncClient())
+      .WillOnce(ReturnRef(cluster_manager.thread_local_cluster_.async_client_));
+  EXPECT_CALL(cluster_manager.thread_local_cluster_.async_client_, send_(_, _, _))
       .WillOnce(
           Invoke([&](Http::RequestMessagePtr&, Http::AsyncClient::Callbacks& callbacks,
                      const Http::AsyncClient::RequestOptions&) -> Http::AsyncClient::Request* {
@@ -878,9 +871,10 @@ TEST_P(WasmCommonTest, RemoteCodeMultipleRetry) {
   NiceMock<Http::MockAsyncClient> client;
   NiceMock<Http::MockAsyncClientRequest> request(&client);
 
-  EXPECT_CALL(cluster_manager, httpAsyncClientForCluster("example_com"))
-      .WillRepeatedly(ReturnRef(cluster_manager.async_client_));
-  EXPECT_CALL(cluster_manager.async_client_, send_(_, _, _))
+  cluster_manager.initializeThreadLocalClusters({"example_com"});
+  EXPECT_CALL(cluster_manager.thread_local_cluster_, httpAsyncClient())
+      .WillRepeatedly(ReturnRef(cluster_manager.thread_local_cluster_.async_client_));
+  EXPECT_CALL(cluster_manager.thread_local_cluster_.async_client_, send_(_, _, _))
       .WillRepeatedly(Invoke([&, retry = num_retries](
                                  Http::RequestMessagePtr&, Http::AsyncClient::Callbacks& callbacks,
                                  const Http::AsyncClient::RequestOptions&) mutable
@@ -969,7 +963,8 @@ public:
   std::unique_ptr<TestContext> context_;
 };
 
-INSTANTIATE_TEST_SUITE_P(Runtimes, WasmCommonContextTest, test_values);
+INSTANTIATE_TEST_SUITE_P(Runtimes, WasmCommonContextTest,
+                         Envoy::Extensions::Common::Wasm::runtime_values);
 
 TEST_P(WasmCommonContextTest, OnDnsResolve) {
   std::string code;

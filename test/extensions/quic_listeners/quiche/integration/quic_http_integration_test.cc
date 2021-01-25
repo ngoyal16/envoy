@@ -310,6 +310,9 @@ TEST_P(QuicHttpIntegrationTest, GetRequestAndEmptyResponse) {
 }
 
 TEST_P(QuicHttpIntegrationTest, GetRequestAndResponseWithBody) {
+  // Use the old nodelay in a random test for coverage. nodelay is a no-op for QUIC.
+  config_helper_.addRuntimeOverride("envoy.reloadable_features.always_nodelay", "false");
+
   initialize();
   sendRequestAndVerifyResponse(default_request_headers_, /*request_size=*/0,
                                default_response_headers_, /*response_size=*/1024,
@@ -529,6 +532,12 @@ TEST_P(QuicHttpIntegrationTest, CertVerificationFailure) {
           : "QUIC_HANDSHAKE_FAILED with details: TLS handshake failure (ENCRYPTION_HANDSHAKE) 46: "
             "certificate unknown";
   EXPECT_EQ(failure_reason, codec_client_->connection()->transportFailureReason());
+}
+
+TEST_P(QuicHttpIntegrationTest, RequestResponseWithTrailers) {
+  config_helper_.addConfigModifier(setEnableUpstreamTrailersHttp1());
+  testTrailers(/*request_size=*/10, /*response_size=*/10, /*request_trailers_present=*/true,
+               /*response_trailers_present=*/true);
 }
 
 } // namespace Quic
